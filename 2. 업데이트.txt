@@ -1,0 +1,103 @@
+# Kindly 업데이트 내역
+
+**기준일: 2025년 3월 11일**
+
+---
+
+## 1. 프로젝트 구성
+
+- Flutter 웹앱 생성 (kindly_god), GitHub·Vercel 배포 대상
+- 의존성: go_router, google_fonts, flutter_riverpod, firebase_core, firebase_auth, google_sign_in
+- 테마: app_theme.dart (녹색 계열, Noto Sans KR)
+- 라우팅: splash, login, onboarding, home, religion/:id, board, board/:id, board-general, board-general/:id, support, terms
+
+---
+
+## 2. 화면 구성
+
+- **스플래시**: 2초 후 홈으로 이동 (종교·국가 선택 없음)
+- **홈**: 랭킹 탭(오늘/이번주/이번달/1년, 종교별/계정별/국가별), 종교별 응원 포인트 그리드, **활동 소식** 섹션, **게시판** 섹션(최근 5개 제목 + 전체보기), 하단 네비(홈/응원하기/활동 소식)
+- **계정(사람 아이콘)**: 테스트 유저 A·B·C 선택, 계정 이름 입력, 나의 종교·국가 선택/재선택, Google 로그인
+- **응원하기**: 금액 선택(1/10/100/1000/기타) 후 **결제** 버튼으로 포인트 적립
+- **활동 소식**: 활동 소식 전용 목록(이미지+요약 3개), 상세 화면 (/board, /board/:id)
+- **게시판**: 활동 소식과 별도. 메인에는 최근 5개 제목만 노출, 전체보기 → 게시판 전체 10개 목록·상세 (/board-general, /board-general/:id)
+- **약관**: 비영리 아님, 기부금 영수증 대상 아님, 수익 일부 사회공헌 사용 가능 문구
+
+---
+
+## 3. 이미지·에셋
+
+- **assets/images/** 폴더 생성, 1.png~6.png, main.png, main1.png 이동
+- **활동 소식**: 1·2·3번 이미지(assets/images/1.png~3.png) 사용
+- **메인 팝업**: 접속 시 main.png 다이얼로그 표시, 닫기 버튼으로 종료
+
+---
+
+## 4. 랭킹·포인트
+
+- 랭킹 1·2·3위: 금·은·동 원형 배경 + 👑 아이콘
+- **테스트 포인트**: Riverpod(TestPointNotifier)로 메모리 저장, 앱 재시작 시 0부터
+- 테스트 유저 A·B·C: 계정 ID, **계정 이름** 사용자 입력 가능 → 계정별 랭킹에 반영
+- 결제 시 포인트: 선택한 유저·종교·국가에 동시 적립
+- **종교별 그리드**: 포인트 많은 순서로 정렬 표시
+
+---
+
+## 5. 종교·국가
+
+- **종교별 상징(마크)**: 기독교 ✝, 이슬람 ☪, 힌두교 ॐ, 불교 ☸, 시크교 ☬, 유대교 ✡, 도교 ☯, 유교 文, 신토 ⛩, 기타 ◆
+- Religion.symbol(id)로 카드·상세 화면에 표시
+- 나의 종교·국가는 계정 다이얼로그에서 선택/재선택
+
+---
+
+## 6. Firebase
+
+- **firebase_config.dart**: kindly-god 프로젝트 설정(apiKey, authDomain, projectId 등)
+- **Google 로그인(웹)**: googleWebClientId, web/index.html meta 태그(google-signin-client_id) 설정
+- Authentication(Google·Apple 사용 설정), 승인된 도메인(localhost 등)
+- 로그인 실패 시 웹용 OAuth 클라이언트 ID 확인 안내 (docs/FIREBASE_SETUP.md 3-1)
+
+---
+
+## 7. UI·UX 수정
+
+- 계정 다이얼로그: **오버플로 방지** (ConstrainedBox maxHeight, Wrap으로 유저 칩 줄바꿈), 패딩·폰트 축소
+- 달러 버튼: 금액만 선택, **결제 버튼** 누를 때만 포인트 적립
+- ActionChip → FilterChip 변경(기타 칩 selected 지원)
+
+---
+
+## 8. 파일 구조 요약
+
+- lib/config: app_theme, routes, firebase_config
+- lib/models: religion, country, board_post, ranking
+- lib/state: test_point_state, test_point_provider
+- lib/services: auth_service
+- lib/widgets: responsive_layout, ranking_tabs, religion_card, home_religion_grid, home_activity_section, **home_board_section**, main_popup_overlay, account_dialog
+- lib/screens: splash, login, onboarding, home, religion_detail, board, board_detail, **board_general**, **board_general_detail**, support, terms
+- lib/data: dummy_board (활동 소식 3개), **dummy_board_general** (게시판 10개, 최근 5개 메인 노출)
+- docs: FIREBASE_SETUP.md
+
+---
+
+## 9. 게시판 (활동 소식과 분리)
+
+- **활동 소식**: dummy_board.dart (3건), 이미지+요약, /board, /board/:id
+- **게시판**: dummy_board_general.dart (10건), 제목·요약·본문, /board-general, /board-general/:id
+- 메인: 활동 소식 아래 **게시판** 섹션에 최근 5개 제목만 노출, 전체보기 → 게시판 전체 목록
+- getLatestBoardGeneralPosts(5)로 최신 순 5개만 메인에 표시
+
+---
+
+## 10. 테스트 흐름
+
+1. 앱 실행 → 스플래시 후 홈
+2. 사람 아이콘 → 유저 A/B/C 선택, 계정 이름 입력, 종교·국가 선택
+3. 응원하기 → 금액 선택 → 결제 버튼 → 포인트 적립
+4. 홈에서 랭킹·종교 그리드(포인트 순) 확인
+5. 게시판: 메인에서 최근 5개 제목 확인 → 전체보기 → 게시글 10개 목록·상세
+
+---
+
+*위 내용은 2025-03-11 기준 작업 내역을 정리한 것입니다.*
