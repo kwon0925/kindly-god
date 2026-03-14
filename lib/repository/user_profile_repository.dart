@@ -145,30 +145,69 @@ class UserProfileRepository {
     return list.take(limit).toList();
   }
 
-  /// 종교별 포인트 집계 (religionId → 합산 포인트)
-  /// Firestore users 컬렉션에서 각 사용자의 religionId별 points를 합산
+  /// 종교별 포인트 집계 (religionId → 합산 포인트) — 일회성
   static Future<Map<String, int>> getReligionRankingPoints() async {
     final docs = await _allUserDocs();
-    final totals = <String, int>{};
-    for (final d in docs) {
-      final rid = d['religionId'] as String?;
-      final pts = (d['points'] as num?)?.toInt() ?? 0;
-      if (rid != null && pts > 0) {
-        totals[rid] = (totals[rid] ?? 0) + pts;
-      }
-    }
-    return totals;
+    return _aggregateByField(docs, 'religionId');
   }
 
-  /// 국가별 포인트 집계 (countryId → 합산 포인트)
+  /// 국가별 포인트 집계 (countryId → 합산 포인트) — 일회성
   static Future<Map<String, int>> getCountryRankingPoints() async {
     final docs = await _allUserDocs();
+    return _aggregateByField(docs, 'countryId');
+  }
+
+  // ── 실시간 스트림 (Firestore snapshots 사용) ──────────────────────────
+
+  /// 계정별 랭킹 실시간 스트림
+  static Stream<List<UserProfile>> accountRankingStream({int limit = 10}) {
+    return _store.collection(_users).snapshots().map((snap) {
+      final list = snap.docs
+          .map((d) {
+            final data = d.data();
+            final dn = data['displayName'] as String?;
+            if (dn == null || dn.trim().isEmpty) return null;
+            return UserProfile(
+              uid: d.id,
+              displayName: dn,
+              religionId: data['religionId'] as String?,
+              countryId: data['countryId'] as String?,
+              points: (data['points'] as num?)?.toInt() ?? 0,
+            );
+          })
+          .whereType<UserProfile>()
+          .where((p) => p.points > 0)
+          .toList()
+        ..sort((a, b) => b.points.compareTo(a.points));
+      return list.take(limit).toList();
+    });
+  }
+
+  /// 종교별 포인트 집계 실시간 스트림 (Map<religionId, totalPoints>)
+  static Stream<Map<String, int>> religionPointsStream() {
+    return _store.collection(_users).snapshots().map((snap) {
+      final docs = snap.docs.map((d) => {'uid': d.id, ...d.data()}).toList();
+      return _aggregateByField(docs, 'religionId');
+    });
+  }
+
+  /// 국가별 포인트 집계 실시간 스트림 (Map<countryId, totalPoints>)
+  static Stream<Map<String, int>> countryPointsStream() {
+    return _store.collection(_users).snapshots().map((snap) {
+      final docs = snap.docs.map((d) => {'uid': d.id, ...d.data()}).toList();
+      return _aggregateByField(docs, 'countryId');
+    });
+  }
+
+  /// fieldId별 points 합산 헬퍼
+  static Map<String, int> _aggregateByField(
+      List<Map<String, dynamic>> docs, String field) {
     final totals = <String, int>{};
     for (final d in docs) {
-      final cid = d['countryId'] as String?;
+      final id = d[field] as String?;
       final pts = (d['points'] as num?)?.toInt() ?? 0;
-      if (cid != null && pts > 0) {
-        totals[cid] = (totals[cid] ?? 0) + pts;
+      if (id != null && pts > 0) {
+        totals[id] = (totals[id] ?? 0) + pts;
       }
     }
     return totals;

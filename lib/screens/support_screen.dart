@@ -133,10 +133,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
     final user = AuthService.currentUser;
     if (user != null) {
       await UserProfileRepository.addPoints(user.uid, amount);
-      // 계정·종교·국가 랭킹 모두 최신화
-      ref.invalidate(accountRankingFromServerProvider);
-      ref.invalidate(religionPointsFromServerProvider);
-      ref.invalidate(countryPointsFromServerProvider);
+      // StreamProvider 사용으로 Firestore 변경 시 자동 반영 — invalidate 불필요
       if (mounted) {
         setState(() => _selectedAmount = null);
         ScaffoldMessenger.of(context).showSnackBar(

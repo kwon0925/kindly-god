@@ -9,19 +9,18 @@ final currentUserProfileProvider = StreamProvider<UserProfile?>((ref) {
   return UserProfileRepository.profileStream(user.uid);
 });
 
-/// 계정별 랭킹 (서버 아이디 기준, 포인트 내림차순)
-final accountRankingFromServerProvider = FutureProvider<List<UserProfile>>((ref) {
-  return UserProfileRepository.getAccountRanking(limit: 10);
+/// 계정별 랭킹 — 실시간 스트림 (Firestore users 컬렉션 변경 시 자동 반영)
+final accountRankingFromServerProvider = StreamProvider<List<UserProfile>>((ref) {
+  return UserProfileRepository.accountRankingStream(limit: 10);
 });
 
-/// 종교별 포인트 집계 (Firestore users → religionId별 합산)
-/// Map<religionId, totalPoints>
-final religionPointsFromServerProvider = FutureProvider<Map<String, int>>((ref) {
-  return UserProfileRepository.getReligionRankingPoints();
+/// 종교별 포인트 집계 — 실시간 스트림 (Map<religionId, totalPoints>)
+/// Firestore users 문서가 바뀌면 즉시 재집계
+final religionPointsFromServerProvider = StreamProvider<Map<String, int>>((ref) {
+  return UserProfileRepository.religionPointsStream();
 });
 
-/// 국가별 포인트 집계 (Firestore users → countryId별 합산)
-/// Map<countryId, totalPoints>
-final countryPointsFromServerProvider = FutureProvider<Map<String, int>>((ref) {
-  return UserProfileRepository.getCountryRankingPoints();
+/// 국가별 포인트 집계 — 실시간 스트림 (Map<countryId, totalPoints>)
+final countryPointsFromServerProvider = StreamProvider<Map<String, int>>((ref) {
+  return UserProfileRepository.countryPointsStream();
 });
