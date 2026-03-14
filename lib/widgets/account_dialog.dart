@@ -238,44 +238,18 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                 const SizedBox(height: 16),
                 const Text('나의 종교', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 4),
-                InkWell(
+                _SelectField(
+                  value: religionName,
+                  hint: '선택하기',
                   onTap: () => _pickReligion(context),
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(religionName ?? '선택하기', style: TextStyle(color: religionName != null ? null : Colors.grey.shade600)),
-                        const Icon(Icons.chevron_right, size: 20),
-                      ],
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 8),
                 const Text('나의 국가', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 4),
-                InkWell(
+                _SelectField(
+                  value: countryName,
+                  hint: '선택하기',
                   onTap: () => _pickCountry(context),
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(countryName ?? '선택하기', style: TextStyle(color: countryName != null ? null : Colors.grey.shade600)),
-                        const Icon(Icons.chevron_right, size: 20),
-                      ],
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 10),
                 Text('종교·국가 선택 후 아래 저장을 눌러 주세요.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
@@ -365,46 +339,12 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
               ],
               const SizedBox(height: 12),
               const Text('나의 종교', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-            const SizedBox(height: 4),
-            InkWell(
-              onTap: () => _pickReligion(context),
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(religionName ?? '선택하기', style: TextStyle(color: religionName != null ? null : Colors.grey.shade600)),
-                    const Icon(Icons.chevron_right, size: 20),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text('나의 국가', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-            const SizedBox(height: 4),
-            InkWell(
-              onTap: () => _pickCountry(context),
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(countryName ?? '선택하기', style: TextStyle(color: countryName != null ? null : Colors.grey.shade600)),
-                    const Icon(Icons.chevron_right, size: 20),
-                  ],
-                ),
-              ),
-            ),
+              const SizedBox(height: 4),
+              _SelectField(value: religionName, hint: '선택하기', onTap: () => _pickReligion(context)),
+              const SizedBox(height: 8),
+              const Text('나의 국가', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+              const SizedBox(height: 4),
+              _SelectField(value: countryName, hint: '선택하기', onTap: () => _pickCountry(context)),
             const SizedBox(height: 12),
             const Divider(height: 1),
             const SizedBox(height: 6),
@@ -429,6 +369,48 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('닫기')),
       ],
+    );
+  }
+}
+
+/// 종교·국가 선택용 흰색 배경 필드 (TextField처럼 보이도록)
+class _SelectField extends StatelessWidget {
+  final String? value;
+  final String hint;
+  final VoidCallback onTap;
+
+  const _SelectField({required this.value, required this.hint, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: value != null
+                ? Theme.of(context).colorScheme.outline
+                : Colors.grey.shade400,
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              value ?? hint,
+              style: TextStyle(
+                fontSize: 14,
+                color: value != null ? Colors.black87 : Colors.grey.shade500,
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: Colors.grey.shade600),
+          ],
+        ),
+      ),
     );
   }
 }
