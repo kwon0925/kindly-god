@@ -117,27 +117,61 @@ class UserProfileRepository {
     }, SetOptions(merge: true));
   }
 
+  /// 전체 사용자 문서 한 번 조회 (랭킹 집계 공용)
+  static Future<List<Map<String, dynamic>>> _allUserDocs() async {
+    final snap = await _store.collection(_users).get();
+    return snap.docs.map((d) => {'uid': d.id, ...d.data()}).toList();
+  }
+
   /// 계정별 랭킹 (아이디(displayName) 있는 사용자만, 포인트 내림차순)
   static Future<List<UserProfile>> getAccountRanking({int limit = 10}) async {
-    final all = await _store.collection(_users).get();
-    final list = all.docs
+    final docs = await _allUserDocs();
+    final list = docs
         .map((d) {
-          final data = d.data();
-          final dn = data['displayName'] as String?;
+          final dn = d['displayName'] as String?;
           if (dn == null || dn.trim().isEmpty) return null;
           return UserProfile(
-            uid: d.id,
+            uid: d['uid'] as String,
             displayName: dn,
-            religionId: data['religionId'] as String?,
-            countryId: data['countryId'] as String?,
-            points: (data['points'] as num?)?.toInt() ?? 0,
+            religionId: d['religionId'] as String?,
+            countryId: d['countryId'] as String?,
+            points: (d['points'] as num?)?.toInt() ?? 0,
           );
         })
         .whereType<UserProfile>()
         .where((p) => p.points > 0)
-        .toList();
-    list.sort((a, b) => b.points.compareTo(a.points));
+        .toList()
+      ..sort((a, b) => b.points.compareTo(a.points));
     return list.take(limit).toList();
+  }
+
+  /// 종교별 포인트 집계 (religionId → 합산 포인트)
+  /// Firestore users 컬렉션에서 각 사용자의 religionId별 points를 합산
+  static Future<Map<String, int>> getReligionRankingPoints() async {
+    final docs = await _allUserDocs();
+    final totals = <String, int>{};
+    for (final d in docs) {
+      final rid = d['religionId'] as String?;
+      final pts = (d['points'] as num?)?.toInt() ?? 0;
+      if (rid != null && pts > 0) {
+        totals[rid] = (totals[rid] ?? 0) + pts;
+      }
+    }
+    return totals;
+  }
+
+  /// 국가별 포인트 집계 (countryId → 합산 포인트)
+  static Future<Map<String, int>> getCountryRankingPoints() async {
+    final docs = await _allUserDocs();
+    final totals = <String, int>{};
+    for (final d in docs) {
+      final cid = d['countryId'] as String?;
+      final pts = (d['points'] as num?)?.toInt() ?? 0;
+      if (cid != null && pts > 0) {
+        totals[cid] = (totals[cid] ?? 0) + pts;
+      }
+    }
+    return totals;
   }
 }
 

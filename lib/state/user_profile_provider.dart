@@ -9,7 +9,19 @@ final currentUserProfileProvider = StreamProvider<UserProfile?>((ref) {
   return UserProfileRepository.profileStream(user.uid);
 });
 
-/// 계정별 랭킹 (서버 아이디 기준, 포인트 내림차순) — 랭킹 탭에서 사용
+/// 계정별 랭킹 (서버 아이디 기준, 포인트 내림차순)
 final accountRankingFromServerProvider = FutureProvider<List<UserProfile>>((ref) {
   return UserProfileRepository.getAccountRanking(limit: 10);
+});
+
+/// 종교별 포인트 집계 (Firestore users → religionId별 합산)
+/// Map<religionId, totalPoints>
+final religionPointsFromServerProvider = FutureProvider<Map<String, int>>((ref) {
+  return UserProfileRepository.getReligionRankingPoints();
+});
+
+/// 국가별 포인트 집계 (Firestore users → countryId별 합산)
+/// Map<countryId, totalPoints>
+final countryPointsFromServerProvider = FutureProvider<Map<String, int>>((ref) {
+  return UserProfileRepository.getCountryRankingPoints();
 });

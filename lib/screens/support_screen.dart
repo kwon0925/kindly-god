@@ -133,11 +133,14 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
     final user = AuthService.currentUser;
     if (user != null) {
       await UserProfileRepository.addPoints(user.uid, amount);
+      // 계정·종교·국가 랭킹 모두 최신화
       ref.invalidate(accountRankingFromServerProvider);
+      ref.invalidate(religionPointsFromServerProvider);
+      ref.invalidate(countryPointsFromServerProvider);
       if (mounted) {
         setState(() => _selectedAmount = null);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$amount P 적립됨 (아이디 랭킹에 반영됩니다)')),
+          SnackBar(content: Text('$amount P 적립됨 (계정·종교·국가 랭킹에 반영됩니다)')),
         );
       }
       return;
