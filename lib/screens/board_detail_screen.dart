@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../data/dummy_board.dart';
 import '../models/board_post.dart';
+import '../widgets/activity_detail_hero.dart';
 
 class BoardDetailScreen extends StatelessWidget {
   final String postId;
@@ -25,18 +26,7 @@ class BoardDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 220,
-              width: double.infinity,
-              child: Image.asset(
-                post.imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: Colors.grey.shade300,
-                  child: const Icon(Icons.image, size: 80),
-                ),
-              ),
-            ),
+            ActivityDetailHero(imageUrl: post.imageUrl),
             Padding(
               padding: const EdgeInsets.all(24),
               child: Column(

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../repository/board_repository.dart';
 import '../repository/user_profile_repository.dart';
 import '../services/auth_service.dart';
+import 'board_button_style.dart';
 
 /// 게시글 작성 폼 위젯 — 로직과 UI를 담당
 /// board_write_screen.dart 에서 사용
@@ -141,6 +142,7 @@ class _BoardWriteFormState extends ConsumerState<BoardWriteForm> {
               width: double.infinity,
               height: 52,
               child: FilledButton.icon(
+                style: BoardButtonStyle.submit,
                 onPressed: _submitting ? null : _submit,
                 icon: _submitting
                     ? const SizedBox(

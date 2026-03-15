@@ -100,10 +100,22 @@ class _RankingTabsState extends ConsumerState<RankingTabs> {
                   child: Row(
                     children: [
                       SizedBox(width: 36, child: _RankCrown(rank: item.rank)),
-                      Expanded(child: Text(item.name)),
-                      Text(
-                        '${item.points} P',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      Expanded(
+                        child: Text(
+                          item.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 56,
+                        child: Text(
+                          '${item.points} P',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          textAlign: TextAlign.end,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
