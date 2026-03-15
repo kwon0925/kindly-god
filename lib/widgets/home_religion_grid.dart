@@ -9,46 +9,68 @@ import 'responsive_layout.dart';
 import 'religion_card.dart';
 
 /// 메인 화면 종교별 응원 포인트 그리드
-/// 로컬(테스트 유저) + 서버(Google 로그인 유저) 포인트 합산하여 표시
+/// - 포인트 내림차순으로 정렬, 상위 [limit]개만 노출
+/// - 나머지는 "전체보기" 버튼으로 /religions 화면에서 확인
 class HomeReligionGrid extends ConsumerWidget {
-  const HomeReligionGrid({super.key});
+  final int limit;
+
+  const HomeReligionGrid({super.key, this.limit = 8});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final localState = ref.watch(testPointProvider).state;
-    final serverReligionAsync = ref.watch(religionPointsFromServerProvider);
-    final serverMap = serverReligionAsync.valueOrNull ?? {};
+    final serverMap = ref.watch(religionPointsFromServerProvider).valueOrNull ?? {};
 
-    // 로컬 + 서버 포인트 합산
     int totalPoints(String id) =>
         localState.getReligionPoints(id) + (serverMap[id] ?? 0);
 
     final sorted = List<Religion>.from(defaultReligions)
       ..sort((a, b) => totalPoints(b.id).compareTo(totalPoints(a.id)));
 
+    final displayed = sorted.take(limit).toList();
+    final hasMore = sorted.length > limit;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final crossAxisCount = ResponsiveLayout.isMobile(context)
             ? 2
             : (constraints.maxWidth > 800 ? 4 : 3);
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            childAspectRatio: 1.1,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: sorted.length,
-          itemBuilder: (context, i) {
-            final r = sorted[i];
-            final points = totalPoints(r.id);
-            return ReligionCard(
-              religion: Religion(id: r.id, name: r.name, nameEn: r.nameEn, points: points),
-              onTap: () => context.push(AppRoutes.religionDetailPath(r.id)),
-            );
-          },
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                childAspectRatio: 1.1,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: displayed.length,
+              itemBuilder: (context, i) {
+                final r = displayed[i];
+                final points = totalPoints(r.id);
+                return ReligionCard(
+                  religion:
+                      Religion(id: r.id, name: r.name, nameEn: r.nameEn, points: points),
+                  onTap: () => context.push(AppRoutes.religionDetailPath(r.id)),
+                );
+              },
+            ),
+            if (hasMore) ...[
+              const SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: () => context.push(AppRoutes.religions),
+                icon: const Icon(Icons.grid_view_rounded, size: 18),
+                label: Text(
+                  '전체보기 (${sorted.length}개 종교 모두 보기)',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ],
         );
       },
     );

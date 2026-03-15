@@ -42,11 +42,20 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 12),
               const RankingTabs(),
               const SizedBox(height: 24),
-              Text(
-                '종교별 응원 포인트',
-                style: Theme.of(context).textTheme.titleMedium,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '종교별 응원 포인트',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  TextButton(
+                    onPressed: () => context.push(AppRoutes.religions),
+                    child: const Text('전체보기'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 4),
               const HomeReligionGrid(),
               const SizedBox(height: 24),
               const HomeActivitySection(),

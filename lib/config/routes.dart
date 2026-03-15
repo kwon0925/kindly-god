@@ -11,12 +11,14 @@ import '../screens/board_general_screen.dart';
 import '../screens/board_general_detail_screen.dart';
 import '../screens/support_screen.dart';
 import '../screens/terms_screen.dart';
+import '../screens/all_religions_screen.dart';
 
 class AppRoutes {
   static const splash = '/';
   static const login = '/login';
   static const onboarding = '/onboarding';
   static const home = '/home';
+  static const religions = '/religions';
   static const religionDetail = '/religion/:id';
   static const board = '/board';
   static const boardDetail = '/board/:id';
@@ -37,6 +39,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: AppRoutes.login, builder: (_, __) => const LoginScreen()),
     GoRoute(path: AppRoutes.onboarding, builder: (_, __) => const OnboardingScreen()),
     GoRoute(path: AppRoutes.home, builder: (_, __) => const HomeScreen()),
+    GoRoute(path: AppRoutes.religions, builder: (_, __) => const AllReligionsScreen()),
     GoRoute(
       path: '/religion/:id',
       builder: (context, state) {
