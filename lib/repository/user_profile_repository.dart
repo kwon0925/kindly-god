@@ -29,6 +29,7 @@ class UserProfileRepository {
       countryId: d['countryId'] as String?,
       points: (d['points'] as num?)?.toInt() ?? 0,
       profileLocked: d['profileLocked'] as bool? ?? false,
+      adWatchCount: (d['adWatchCount'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -44,6 +45,7 @@ class UserProfileRepository {
         countryId: d['countryId'] as String?,
         points: (d['points'] as num?)?.toInt() ?? 0,
         profileLocked: d['profileLocked'] as bool? ?? false,
+        adWatchCount: (d['adWatchCount'] as num?)?.toInt() ?? 0,
       );
     });
   }
@@ -166,6 +168,41 @@ class UserProfileRepository {
     await batch.commit();
   }
 
+  /// 광고 시청 포인트: 1회 1P, 10회마다 10P 추가. users + aggregates 동시 갱신.
+  static Future<void> addAdWatchPoints(String uid) async {
+    final userRef = _store.collection(_users).doc(uid);
+    final userDoc = await userRef.get();
+    final data = userDoc.data();
+    final religionId = data?['religionId'] as String?;
+    final countryId = data?['countryId'] as String?;
+    final currentCount = (data?['adWatchCount'] as num?)?.toInt() ?? 0;
+    final newCount = currentCount + 1;
+    int pointsToAdd = 1;
+    if (newCount % 10 == 0) pointsToAdd += 10;
+
+    final batch = _store.batch();
+
+    batch.set(userRef, {
+      'adWatchCount': newCount,
+      'points': FieldValue.increment(pointsToAdd),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+
+    final totalRef = _store.collection(_aggregates).doc(_pointsTotal);
+    batch.set(totalRef, {'value': FieldValue.increment(pointsToAdd)}, SetOptions(merge: true));
+
+    if (religionId != null && religionId.isNotEmpty) {
+      final relRef = _store.collection(_aggregates).doc(_religionPoints);
+      batch.set(relRef, {religionId: FieldValue.increment(pointsToAdd)}, SetOptions(merge: true));
+    }
+    if (countryId != null && countryId.isNotEmpty) {
+      final ctyRef = _store.collection(_aggregates).doc(_countryPoints);
+      batch.set(ctyRef, {countryId: FieldValue.increment(pointsToAdd)}, SetOptions(merge: true));
+    }
+
+    await batch.commit();
+  }
+
   /// 전체 사용자 문서 한 번 조회 (랭킹 집계 공용)
   static Future<List<Map<String, dynamic>>> _allUserDocs() async {
     final snap = await _store.collection(_users).get();
@@ -232,29 +269,19 @@ class UserProfileRepository {
     });
   }
 
-  /// 종교별 포인트 집계 실시간 스트림 — 집계 문서 사용 (users 전체 스캔 없음)
+  /// 종교별 포인트 집계 실시간 스트림 — users 컬렉션 기준 (비로그인도 조회 가능, 과거 기부 포함)
   static Stream<Map<String, int>> religionPointsStream() {
-    return _store.collection(_aggregates).doc(_religionPoints).snapshots().map((doc) {
-      if (!doc.exists || doc.data() == null) return <String, int>{};
-      final d = doc.data()!;
-      final map = <String, int>{};
-      for (final e in d.entries) {
-        if (e.value is num) map[e.key] = (e.value as num).toInt();
-      }
-      return map;
+    return _store.collection(_users).snapshots().map((snap) {
+      final docs = snap.docs.map((d) => {'uid': d.id, ...d.data()}).toList();
+      return _aggregateByField(docs, 'religionId');
     });
   }
 
-  /// 국가별 포인트 집계 실시간 스트림 — 집계 문서 사용
+  /// 국가별 포인트 집계 실시간 스트림 — users 컬렉션 기준
   static Stream<Map<String, int>> countryPointsStream() {
-    return _store.collection(_aggregates).doc(_countryPoints).snapshots().map((doc) {
-      if (!doc.exists || doc.data() == null) return <String, int>{};
-      final d = doc.data()!;
-      final map = <String, int>{};
-      for (final e in d.entries) {
-        if (e.value is num) map[e.key] = (e.value as num).toInt();
-      }
-      return map;
+    return _store.collection(_users).snapshots().map((snap) {
+      final docs = snap.docs.map((d) => {'uid': d.id, ...d.data()}).toList();
+      return _aggregateByField(docs, 'countryId');
     });
   }
 
@@ -280,6 +307,7 @@ class UserProfile {
   final String? countryId;
   final int points;
   final bool profileLocked;
+  final int adWatchCount;
 
   UserProfile({
     required this.uid,
@@ -288,6 +316,7 @@ class UserProfile {
     this.countryId,
     this.points = 0,
     this.profileLocked = false,
+    this.adWatchCount = 0,
   });
 }
 

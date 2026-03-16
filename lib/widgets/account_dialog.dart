@@ -239,6 +239,20 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(user.email ?? '로그인됨', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700)),
+                if (profile != null) ...[
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(Icons.play_circle_outline, size: 16, color: Colors.grey.shade600),
+                      const SizedBox(width: 6),
+                      Text('광고 시청 ${profile.adWatchCount}회', style: Theme.of(context).textTheme.bodySmall),
+                      const SizedBox(width: 16),
+                      Icon(Icons.volunteer_activism, size: 16, color: Colors.grey.shade600),
+                      const SizedBox(width: 6),
+                      Text('기부 포인트 ${profile.points} P', style: Theme.of(context).textTheme.bodySmall),
+                    ],
+                  ),
+                ],
                 if (locked) ...[
                   const SizedBox(height: 10),
                   Container(

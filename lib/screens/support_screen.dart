@@ -87,19 +87,19 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              '전면 광고를 클릭 후 시청하면 계정당 1포인트가 적립됩니다. 10회 시청 시 추가 10포인트 보너스.',
+              '전면 광고를 클릭 후 시청하면 계정당 1포인트가 적립됩니다.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade700),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '10회 마다 10포인트 추가 적립',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
             ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () {
-                  // TODO: 애드센스 전면광고 연동
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('광고 연동 후 시청 가능합니다')),
-                  );
-                },
+                onPressed: _onAdWatch,
                 icon: const Icon(Icons.play_circle_outline),
                 label: const Text('광고 시청하고 1P 받기'),
               ),
@@ -127,6 +127,46 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _onAdWatch() async {
+    final user = AuthService.currentUser;
+    if (user != null) {
+      final profile = await UserProfileRepository.getProfile(user.uid);
+      if (profile == null || !profile.profileLocked || profile.religionId == null || profile.countryId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('계정에서 아이디·종교·국가를 설정하고 "종교·국가 저장"을 한 뒤 이용해 주세요.'),
+            ),
+          );
+        }
+        return;
+      }
+      await UserProfileRepository.addAdWatchPoints(user.uid);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('1 P 적립됨 (10회마다 10 P 추가)')),
+        );
+      }
+      return;
+    }
+    final notifier = ref.read(testPointProvider);
+    final state = notifier.state;
+    if (state.currentTestUser == null || state.selectedReligionId == null || state.selectedCountryId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('테스트: 계정·종교·국가를 선택한 뒤 이용해 주세요.')),
+        );
+      }
+      return;
+    }
+    final ok = notifier.addPoints(1);
+    if (ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('1 P 적립됨 (테스트)')),
+      );
+    }
   }
 
   Future<void> _onPay(int amount) async {
