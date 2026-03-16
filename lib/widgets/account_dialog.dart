@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../constants/account_dialog_strings.dart';
 import '../models/religion.dart';
 import '../models/country.dart';
 import '../repository/user_profile_repository.dart';
@@ -55,7 +56,7 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.success) {
-      Navigator.of(context).pop();
+      // 팝업 유지 — 신규 사용자가 아이디·종교·국가 입력할 수 있도록
     } else {
       setState(() => _error = result.message);
     }
@@ -170,6 +171,28 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     }
   }
 
+  /// 종교·국가 확인 다이얼로그 표시. 사용자가 '확인'을 누르면 true 반환.
+  Future<bool> _showReligionCountryConfirmDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(AccountDialogStrings.confirmDialogTitle),
+        content: const Text(AccountDialogStrings.confirmDialogMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text(AccountDialogStrings.confirmDialogCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text(AccountDialogStrings.confirmDialogConfirm),
+          ),
+        ],
+      ),
+    );
+    return confirmed == true;
+  }
+
   Future<void> _saveReligionAndCountry(String uid) async {
     final rid = ref.read(testPointProvider).state.selectedReligionId;
     final cid = ref.read(testPointProvider).state.selectedCountryId;
@@ -181,6 +204,8 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
       }
       return;
     }
+    final confirmed = await _showReligionCountryConfirmDialog();
+    if (!mounted || !confirmed) return;
     setState(() => _savingReligionCountry = true);
     try {
       await UserProfileRepository.updateReligion(uid, rid);
@@ -188,7 +213,7 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
       await UserProfileRepository.lockProfile(uid);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('설정이 완료되었습니다. 아이디·종교·국가는 변경할 수 없습니다.')),
+          const SnackBar(content: Text(AccountDialogStrings.saveCompleteMessage)),
         );
       }
     } catch (e) {
@@ -228,8 +253,22 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
       final locked = profile?.profileLocked ?? false;
       final maxH = MediaQuery.sizeOf(context).height * 0.55 - 20;
 
+      final errorColor = Theme.of(context).colorScheme.error;
       return AlertDialog(
-        title: const Text('계정'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(AccountDialogStrings.titleAccount),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                user.email ?? '로그인됨',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
         contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
         content: ConstrainedBox(
           constraints: BoxConstraints(maxHeight: maxH.clamp(200.0, 500.0)),
@@ -238,7 +277,6 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(user.email ?? '로그인됨', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700)),
                 if (profile != null) ...[
                   const SizedBox(height: 10),
                   Row(
@@ -268,8 +306,8 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            '한 번 설정된 아이디·종교·국가는 변경할 수 없습니다.',
-                            style: TextStyle(fontSize: 12, color: Colors.amber.shade900),
+                            AccountDialogStrings.lockedWarning,
+                            style: TextStyle(fontSize: 12, color: errorColor, fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
@@ -337,7 +375,10 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                 ),
                 if (!locked) ...[
                   const SizedBox(height: 10),
-                  Text('종교·국가 선택 후 저장하면 이후 변경할 수 없습니다.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
+                  Text(
+                    AccountDialogStrings.beforeSaveHint,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: errorColor, fontWeight: FontWeight.w500),
+                  ),
                   const SizedBox(height: 6),
                   SizedBox(
                     width: double.infinity,
@@ -345,8 +386,8 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                       onPressed: _savingReligionCountry ? null : () => _saveReligionAndCountry(user.uid),
                       icon: _savingReligionCountry
                           ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                          : const Icon(Icons.save, size: 18),
-                      label: Text(_savingReligionCountry ? '저장 중...' : '종교·국가 저장'),
+                          : const Icon(Icons.check, size: 18),
+                      label: Text(_savingReligionCountry ? '확인 중...' : AccountDialogStrings.confirmButtonLabel),
                     ),
                   ),
                 ],
