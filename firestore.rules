@@ -8,9 +8,10 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // 아이디 중복 검사용: 로그인 사용자만 읽기/쓰기
+    // 아이디 중복 검사용: 읽기는 누구나 가능 (중복 여부는 비민감 정보),
+    // 쓰기·삭제는 로그인 필요
     match /displayNames/{normalizedName} {
-      allow read: if request.auth != null;
+      allow read: if true;
       allow create: if request.auth != null;
       allow update, delete: if request.auth != null
         && resource.data.uid == request.auth.uid;
