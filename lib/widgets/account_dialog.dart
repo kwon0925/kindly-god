@@ -30,6 +30,8 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
   String? _idError;
   bool _idSaving = false;
   bool _savingReligionCountry = false;
+  bool _checkingDuplicate = false;
+  CheckDisplayNameResult? _duplicateCheckResult;
 
   @override
   void dispose() {
@@ -57,6 +59,29 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     } else {
       setState(() => _error = result.message);
     }
+  }
+
+  Future<void> _checkDuplicate(String name) async {
+    if (name.trim().isEmpty) {
+      setState(() {
+        _duplicateCheckResult = CheckDisplayNameResult.empty;
+        _idError = '아이디를 입력해 주세요.';
+      });
+      return;
+    }
+    setState(() {
+      _checkingDuplicate = true;
+      _idError = null;
+      _duplicateCheckResult = null;
+    });
+    final result = await UserProfileRepository.checkDisplayNameAvailable(name);
+    if (!mounted) return;
+    setState(() {
+      _checkingDuplicate = false;
+      _duplicateCheckResult = result;
+      if (result == CheckDisplayNameResult.duplicate) _idError = '이미 사용 중인 아이디입니다.';
+      if (result == CheckDisplayNameResult.empty) _idError = '아이디를 입력해 주세요.';
+    });
   }
 
   void _pickReligion(BuildContext context) {
@@ -160,9 +185,10 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     try {
       await UserProfileRepository.updateReligion(uid, rid);
       await UserProfileRepository.updateCountry(uid, cid);
+      await UserProfileRepository.lockProfile(uid);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('종교·국가가 저장되었습니다. 기부 시 랭킹에 반영됩니다.')),
+          const SnackBar(content: Text('설정이 완료되었습니다. 아이디·종교·국가는 변경할 수 없습니다.')),
         );
       }
     } catch (e) {
@@ -191,13 +217,17 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
           }
         });
       }
-      final religionName = testState.selectedReligionId != null
-          ? defaultReligions.firstWhere((r) => r.id == testState.selectedReligionId, orElse: () => defaultReligions.first).name
+      final rid = profile?.religionId ?? testState.selectedReligionId;
+      final cid = profile?.countryId ?? testState.selectedCountryId;
+      final religionName = rid != null
+          ? defaultReligions.firstWhere((r) => r.id == rid, orElse: () => defaultReligions.first).name
           : null;
-      final countryName = testState.selectedCountryId != null
-          ? defaultCountries.firstWhere((c) => c.id == testState.selectedCountryId, orElse: () => defaultCountries.first).name
+      final countryName = cid != null
+          ? defaultCountries.firstWhere((c) => c.id == cid, orElse: () => defaultCountries.first).name
           : null;
+      final locked = profile?.profileLocked ?? false;
       final maxH = MediaQuery.sizeOf(context).height * 0.55 - 20;
+
       return AlertDialog(
         title: const Text('계정'),
         contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -209,6 +239,29 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(user.email ?? '로그인됨', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700)),
+                if (locked) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.amber.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.lock, size: 18, color: Colors.amber.shade800),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '한 번 설정된 아이디·종교·국가는 변경할 수 없습니다.',
+                            style: TextStyle(fontSize: 12, color: Colors.amber.shade900),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 const Text('아이디 (랭킹에 표시)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 4),
@@ -218,22 +271,37 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                     Expanded(
                       child: TextField(
                         controller: _displayNameController,
+                        readOnly: locked,
                         decoration: InputDecoration(
                           hintText: '원하는 아이디 입력',
                           isDense: true,
                           errorText: _idError,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                         ),
-                        onSubmitted: (_) => _saveDisplayName(user.uid),
+                        onSubmitted: locked ? null : (_) => _saveDisplayName(user.uid),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    FilledButton(
-                      onPressed: _idSaving ? null : () => _saveDisplayName(user.uid),
-                      child: _idSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('저장'),
-                    ),
+                    if (!locked) ...[
+                      const SizedBox(width: 6),
+                      FilledButton.tonal(
+                        onPressed: _checkingDuplicate ? null : () => _checkDuplicate(_displayNameController.text),
+                        child: _checkingDuplicate
+                            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                            : const Text('중복 검사'),
+                      ),
+                      const SizedBox(width: 6),
+                      FilledButton(
+                        onPressed: _idSaving ? null : () => _saveDisplayName(user.uid),
+                        child: _idSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('저장'),
+                      ),
+                    ],
                   ],
                 ),
+                if (!locked && _duplicateCheckResult == CheckDisplayNameResult.available)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text('사용 가능한 아이디입니다.', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary)),
+                  ),
                 if (_idError != null) const SizedBox(height: 4),
                 const SizedBox(height: 16),
                 const Text('나의 종교', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
@@ -241,7 +309,8 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                 _SelectField(
                   value: religionName,
                   hint: '선택하기',
-                  onTap: () => _pickReligion(context),
+                  onTap: locked ? null : () => _pickReligion(context),
+                  enabled: !locked,
                 ),
                 const SizedBox(height: 8),
                 const Text('나의 국가', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
@@ -249,21 +318,24 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                 _SelectField(
                   value: countryName,
                   hint: '선택하기',
-                  onTap: () => _pickCountry(context),
+                  onTap: locked ? null : () => _pickCountry(context),
+                  enabled: !locked,
                 ),
-                const SizedBox(height: 10),
-                Text('종교·국가 선택 후 아래 저장을 눌러 주세요.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    onPressed: _savingReligionCountry ? null : () => _saveReligionAndCountry(user.uid),
-                    icon: _savingReligionCountry
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.save, size: 18),
-                    label: Text(_savingReligionCountry ? '저장 중...' : '종교·국가 저장'),
+                if (!locked) ...[
+                  const SizedBox(height: 10),
+                  Text('종교·국가 선택 후 저장하면 이후 변경할 수 없습니다.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600)),
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: _savingReligionCountry ? null : () => _saveReligionAndCountry(user.uid),
+                      icon: _savingReligionCountry
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.save, size: 18),
+                      label: Text(_savingReligionCountry ? '저장 중...' : '종교·국가 저장'),
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -377,38 +449,47 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
 class _SelectField extends StatelessWidget {
   final String? value;
   final String hint;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final bool enabled;
 
-  const _SelectField({required this.value, required this.hint, required this.onTap});
+  const _SelectField({
+    required this.value,
+    required this.hint,
+    this.onTap,
+    this.enabled = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: enabled && onTap != null ? onTap : null,
       borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(
-            color: value != null
-                ? Theme.of(context).colorScheme.outline
-                : Colors.grey.shade400,
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              value ?? hint,
-              style: TextStyle(
-                fontSize: 14,
-                color: value != null ? Colors.black87 : Colors.grey.shade500,
-              ),
+      child: Opacity(
+        opacity: enabled ? 1 : 0.6,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
+          decoration: BoxDecoration(
+            color: enabled ? Colors.white : Colors.grey.shade100,
+            border: Border.all(
+              color: value != null
+                  ? Theme.of(context).colorScheme.outline
+                  : Colors.grey.shade400,
             ),
-            Icon(Icons.arrow_drop_down, color: Colors.grey.shade600),
-          ],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                value ?? hint,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: value != null ? Colors.black87 : Colors.grey.shade500,
+                ),
+              ),
+              Icon(Icons.arrow_drop_down, color: Colors.grey.shade600),
+            ],
+          ),
         ),
       ),
     );

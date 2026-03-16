@@ -100,4 +100,42 @@
 
 ---
 
-*위 내용은 2025-03-11 기준 작업 내역을 정리한 것입니다.*
+## 11. 2026년 3월 15일 업데이트
+
+### 11-1. 랭킹·포인트 (Firestore 실시간)
+- **Google 로그인 사용자** 포인트: 계정별뿐 아니라 **종교별·국가별** 랭킹 및 메인 종교 그리드에 반영
+- UserProfileRepository: `getReligionRankingPoints()`, `getCountryRankingPoints()` 추가 (users 컬렉션 집계)
+- **StreamProvider** 사용으로 Firestore 변경 시 자동 반영 (religionPointsFromServerProvider, countryPointsFromServerProvider)
+- ranking_tabs, home_religion_grid: 로컬(테스트) + 서버(Firestore) 포인트 병합 표시
+
+### 11-2. 메인 화면 종교 그리드
+- **상위 8개** 종교만 포인트 순으로 표시
+- **전체보기** 버튼 → `/religions` (AllReligionsScreen)에서 11개 전체 표시
+- HomeReligionGrid: limit 파라미터(기본 8), 전체보기 링크
+
+### 11-3. 게시판 Firebase 연동
+- **활동 소식**: 기존 하드코딩 유지 (관리자용, dummy_board)
+- **게시판**: Firestore `posts` 컬렉션 연동, **댓글** 서브컬렉션
+- 모델: community_post.dart (제목·본문·작성자·익명·commentCount), community_comment.dart
+- BoardRepository: 게시글/댓글 CRUD, 실시간 스트림
+- **글쓰기**: 로그인 사용자만, **아이디명** or **익명** 체크박스 선택
+- 게시글·댓글 목록에 표시 이름: 익명 체크 시 "익명", 미체크 시 서버 저장 아이디명
+- dummy_board_general.dart 삭제, 라우트: /board-write (글쓰기)
+
+### 11-4. UI·버튼·레이아웃 수정
+- **게시글 작성**: 게시하기 버튼 **하단 고정** (board_write_form.dart 분리)
+- **게시하기 버튼**: Teal 색상으로 구분 (board_button_style.dart)
+- **활동 상세** 이미지: PC에서 잘리지 않도록 BoxFit.contain, PC 시 높이 360 (activity_detail_hero.dart)
+- **랭킹 탭**: 이름·포인트 글씨 PC에서 잘림 방지 (overflow: ellipsis, 포인트 영역 56px)
+
+### 11-5. 파일 구조 추가
+- lib/models: community_post, community_comment
+- lib/repository: board_repository
+- lib/state: board_provider
+- lib/widgets: activity_detail_hero, board_write_form, board_button_style
+- lib/screens: board_write_screen, all_religions_screen
+- Firestore 규칙: posts(읽기 전체, 생성 로그인, 삭제 본인), posts/{id}/comments 동일
+
+---
+
+*위 내용은 2025-03-11 기준 작성 후, 2026-03-15 업데이트를 반영한 것입니다.*

@@ -16,6 +16,11 @@ service cloud.firestore {
         && resource.data.uid == request.auth.uid;
     }
 
+    // 집계(총포인트, 종교별·국가별): 로그인 사용자 읽기/쓰기 (결제 시 클라이언트에서 갱신)
+    match /aggregates/{docId} {
+      allow read, write: if request.auth != null;
+    }
+
     // 게시판: 비로그인도 읽기 가능, 쓰기·삭제는 로그인 필요
     match /posts/{postId} {
       allow read: if true;

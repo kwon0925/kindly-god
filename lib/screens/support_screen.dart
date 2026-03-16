@@ -132,8 +132,26 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
   Future<void> _onPay(int amount) async {
     final user = AuthService.currentUser;
     if (user != null) {
+      final profile = await UserProfileRepository.getProfile(user.uid);
+      if (profile == null || !profile.profileLocked) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('계정(사람 아이콘)에서 아이디·종교·국가를 설정하고 "종교·국가 저장"을 한 뒤 이용해 주세요.'),
+            ),
+          );
+        }
+        return;
+      }
+      if (profile.religionId == null || profile.countryId == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('종교와 국가를 선택한 뒤 저장해 주세요.')),
+          );
+        }
+        return;
+      }
       await UserProfileRepository.addPoints(user.uid, amount);
-      // StreamProvider 사용으로 Firestore 변경 시 자동 반영 — invalidate 불필요
       if (mounted) {
         setState(() => _selectedAmount = null);
         ScaffoldMessenger.of(context).showSnackBar(

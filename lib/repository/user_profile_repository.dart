@@ -7,6 +7,10 @@ class UserProfileRepository {
   static final _store = FirebaseFirestore.instance;
   static const _users = 'users';
   static const _displayNames = 'displayNames';
+  static const _aggregates = 'aggregates';
+  static const _pointsTotal = 'pointsTotal';
+  static const _religionPoints = 'religionPoints';
+  static const _countryPoints = 'countryPoints';
 
   /// 아이디 중복 검사·저장 시 사용하는 정규화 (공백 trim, 소문자, 문서 ID용 문자만)
   static String _normalize(String name) {
@@ -24,6 +28,7 @@ class UserProfileRepository {
       religionId: d['religionId'] as String?,
       countryId: d['countryId'] as String?,
       points: (d['points'] as num?)?.toInt() ?? 0,
+      profileLocked: d['profileLocked'] as bool? ?? false,
     );
   }
 
@@ -38,8 +43,31 @@ class UserProfileRepository {
         religionId: d['religionId'] as String?,
         countryId: d['countryId'] as String?,
         points: (d['points'] as num?)?.toInt() ?? 0,
+        profileLocked: d['profileLocked'] as bool? ?? false,
       );
     });
+  }
+
+  /// 아이디 중복 검사만 (저장하지 않음)
+  static Future<CheckDisplayNameResult> checkDisplayNameAvailable(String name) async {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return CheckDisplayNameResult.empty;
+    final normalized = _normalize(trimmed);
+    if (normalized.isEmpty) return CheckDisplayNameResult.empty;
+    final ref = _store.collection(_displayNames).doc(normalized);
+    final doc = await ref.get();
+    if (!doc.exists) return CheckDisplayNameResult.available;
+    final existingUid = doc.data()?['uid'] as String?;
+    if (existingUid == null) return CheckDisplayNameResult.available;
+    return CheckDisplayNameResult.duplicate;
+  }
+
+  /// 프로필 잠금 (종교·국가 저장 후 한 번만 호출, 이후 변경 불가)
+  static Future<void> lockProfile(String uid) async {
+    await _store.collection(_users).doc(uid).set({
+      'profileLocked': true,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
   /// 아이디 설정. (결과, 실패 시 메시지)
@@ -107,14 +135,35 @@ class UserProfileRepository {
     }, SetOptions(merge: true));
   }
 
-  /// 포인트 적립 (로그인 사용자, 계정별 랭킹용). 문서 없으면 생성 후 증가.
+  /// 포인트 적립: users + 집계(총포인트, 종교별, 국가별) 동시 갱신. 종교/국가 미설정 시 해당 집계는 스킵.
   static Future<void> addPoints(String uid, int amount) async {
     if (amount <= 0) return;
-    final ref = _store.collection(_users).doc(uid);
-    await ref.set({
+    final userRef = _store.collection(_users).doc(uid);
+    final userDoc = await userRef.get();
+    final data = userDoc.data();
+    final religionId = data?['religionId'] as String?;
+    final countryId = data?['countryId'] as String?;
+
+    final batch = _store.batch();
+
+    batch.set(userRef, {
       'points': FieldValue.increment(amount),
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
+
+    final totalRef = _store.collection(_aggregates).doc(_pointsTotal);
+    batch.set(totalRef, {'value': FieldValue.increment(amount)}, SetOptions(merge: true));
+
+    if (religionId != null && religionId.isNotEmpty) {
+      final relRef = _store.collection(_aggregates).doc(_religionPoints);
+      batch.set(relRef, {religionId: FieldValue.increment(amount)}, SetOptions(merge: true));
+    }
+    if (countryId != null && countryId.isNotEmpty) {
+      final ctyRef = _store.collection(_aggregates).doc(_countryPoints);
+      batch.set(ctyRef, {countryId: FieldValue.increment(amount)}, SetOptions(merge: true));
+    }
+
+    await batch.commit();
   }
 
   /// 전체 사용자 문서 한 번 조회 (랭킹 집계 공용)
@@ -183,19 +232,29 @@ class UserProfileRepository {
     });
   }
 
-  /// 종교별 포인트 집계 실시간 스트림 (Map<religionId, totalPoints>)
+  /// 종교별 포인트 집계 실시간 스트림 — 집계 문서 사용 (users 전체 스캔 없음)
   static Stream<Map<String, int>> religionPointsStream() {
-    return _store.collection(_users).snapshots().map((snap) {
-      final docs = snap.docs.map((d) => {'uid': d.id, ...d.data()}).toList();
-      return _aggregateByField(docs, 'religionId');
+    return _store.collection(_aggregates).doc(_religionPoints).snapshots().map((doc) {
+      if (!doc.exists || doc.data() == null) return <String, int>{};
+      final d = doc.data()!;
+      final map = <String, int>{};
+      for (final e in d.entries) {
+        if (e.value is num) map[e.key] = (e.value as num).toInt();
+      }
+      return map;
     });
   }
 
-  /// 국가별 포인트 집계 실시간 스트림 (Map<countryId, totalPoints>)
+  /// 국가별 포인트 집계 실시간 스트림 — 집계 문서 사용
   static Stream<Map<String, int>> countryPointsStream() {
-    return _store.collection(_users).snapshots().map((snap) {
-      final docs = snap.docs.map((d) => {'uid': d.id, ...d.data()}).toList();
-      return _aggregateByField(docs, 'countryId');
+    return _store.collection(_aggregates).doc(_countryPoints).snapshots().map((doc) {
+      if (!doc.exists || doc.data() == null) return <String, int>{};
+      final d = doc.data()!;
+      final map = <String, int>{};
+      for (final e in d.entries) {
+        if (e.value is num) map[e.key] = (e.value as num).toInt();
+      }
+      return map;
     });
   }
 
@@ -220,6 +279,7 @@ class UserProfile {
   final String? religionId;
   final String? countryId;
   final int points;
+  final bool profileLocked;
 
   UserProfile({
     required this.uid,
@@ -227,7 +287,11 @@ class UserProfile {
     this.religionId,
     this.countryId,
     this.points = 0,
+    this.profileLocked = false,
   });
 }
 
 enum SetDisplayNameResult { success, duplicate, empty, failure }
+
+/// 아이디 중복 검사만 (저장 안 함). 사용 가능 여부 반환
+enum CheckDisplayNameResult { available, duplicate, empty }
