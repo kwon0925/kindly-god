@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../config/routes.dart';
+import '../services/auth_service.dart';
 import '../widgets/responsive_layout.dart';
 import '../widgets/ranking_tabs.dart';
 import '../widgets/home_religion_grid.dart';
@@ -8,6 +9,7 @@ import '../widgets/home_activity_section.dart';
 import '../widgets/home_board_section.dart';
 import '../widgets/main_popup_overlay.dart';
 import '../widgets/account_dialog.dart';
+import '../widgets/login_only_dialog.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -25,7 +27,13 @@ class HomeScreen extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.person),
-            onPressed: () => AccountDialog.show(context),
+            onPressed: () {
+              if (AuthService.currentUser == null) {
+                LoginOnlyDialog.show(context);
+              } else {
+                AccountDialog.show(context);
+              }
+            },
           ),
         ],
       ),

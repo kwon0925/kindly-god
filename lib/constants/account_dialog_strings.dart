@@ -15,4 +15,13 @@ class AccountDialogStrings {
   static const String confirmDialogConfirm = '확인';
   static const String saveCompleteMessage =
       '설정이 완료되었습니다. 아이디·종교·국가는 변경할 수 없습니다.';
+
+  /// 로그인 전용 팝업 (구글 로그인 버튼만)
+  static const String loginOnlyTitle = '로그인';
+  static const String googleLoginButton = 'Google로 로그인';
+  static const String googleLoginLoading = '로그인 중...';
+
+  /// 비로그인 상태에서 계정 팝업이 열렸을 때(예: 직접 호출)
+  static const String loginRequiredTitle = '계정';
+  static const String loginRequiredMessage = '로그인이 필요합니다.';
 }

@@ -24,9 +24,6 @@ class AccountDialog extends ConsumerStatefulWidget {
 }
 
 class _AccountDialogState extends ConsumerState<AccountDialog> {
-  bool _loading = false;
-  String? _error;
-  final _nameControllers = <String, TextEditingController>{};
   final _displayNameController = TextEditingController();
   String? _idError;
   bool _idSaving = false;
@@ -37,29 +34,7 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
   @override
   void dispose() {
     _displayNameController.dispose();
-    for (final c in _nameControllers.values) {
-      c.dispose();
-    }
     super.dispose();
-  }
-
-  TextEditingController _nameController(String id) {
-    return _nameControllers.putIfAbsent(id, () => TextEditingController());
-  }
-
-  Future<void> _signInWithGoogle() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    final result = await AuthService.signInWithGoogle();
-    if (!mounted) return;
-    setState(() => _loading = false);
-    if (result.success) {
-      // 팝업 유지 — 신규 사용자가 아이디·종교·국가 입력할 수 있도록
-    } else {
-      setState(() => _error = result.message);
-    }
   }
 
   Future<void> _checkDuplicate(String name) async {
@@ -408,91 +383,11 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
       );
     }
 
-    final religionName = testState.selectedReligionId != null
-        ? defaultReligions.firstWhere((r) => r.id == testState.selectedReligionId, orElse: () => defaultReligions.first).name
-        : null;
-    final countryName = testState.selectedCountryId != null
-        ? defaultCountries.firstWhere((c) => c.id == testState.selectedCountryId, orElse: () => defaultCountries.first).name
-        : null;
-
-    final maxH = MediaQuery.sizeOf(context).height * 0.55 - 20;
-
+    // 비로그인 시 계정 팝업 진입(정상 경로는 사람 버튼 → LoginOnlyDialog).
+    // 진입 시 로그인만 보이므로 여기선 안내만 표시.
     return AlertDialog(
-      title: const Text('계정 / 로그인'),
-      contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-      content: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxH.clamp(200.0, 500.0)),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text('테스트: 계정 선택 (A, B, C)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: ['A', 'B', 'C'].map((id) {
-                  final selected = testState.currentTestUser == id;
-                  final displayName = testState.getAccountDisplayName(id);
-                  return FilterChip(
-                    label: Text(displayName, overflow: TextOverflow.ellipsis),
-                    selected: selected,
-                    onSelected: (_) => ref.read(testPointProvider).setTestUser(id),
-                  );
-                }).toList(),
-              ),
-              if (testState.currentTestUser != null) ...[
-                const SizedBox(height: 10),
-                Text('계정 이름 (계정별 랭킹에 표시)', style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 4),
-                Builder(
-                  builder: (context) {
-                    final uid = testState.currentTestUser!;
-                    final c = _nameController(uid);
-                    final saved = (testState.userDisplayNames[uid] ?? '').trim();
-                    if (c.text.isEmpty && saved.isNotEmpty) c.text = saved;
-                    return TextField(
-                      controller: c,
-                      decoration: InputDecoration(
-                        hintText: '유저 $uid',
-                        isDense: true,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                      onChanged: (v) => ref.read(testPointProvider).setUserDisplayName(uid, v),
-                    );
-                  },
-                ),
-              ],
-              const SizedBox(height: 12),
-              const Text('나의 종교', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-              const SizedBox(height: 4),
-              _SelectField(value: religionName, hint: '선택하기', onTap: () => _pickReligion(context)),
-              const SizedBox(height: 8),
-              const Text('나의 국가', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-              const SizedBox(height: 4),
-              _SelectField(value: countryName, hint: '선택하기', onTap: () => _pickCountry(context)),
-            const SizedBox(height: 12),
-            const Divider(height: 1),
-            const SizedBox(height: 6),
-            const Text('Google 로그인', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-            if (_error != null) ...[
-              const SizedBox(height: 4),
-              Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 12)),
-              const SizedBox(height: 4),
-            ],
-            ElevatedButton.icon(
-              onPressed: _loading ? null : _signInWithGoogle,
-              icon: _loading
-                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.g_mobiledata, size: 20),
-              label: Text(_loading ? '로그인 중...' : 'Google로 로그인', style: const TextStyle(fontSize: 13)),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-        ),
-      ),
+      title: const Text(AccountDialogStrings.loginRequiredTitle),
+      content: const Text(AccountDialogStrings.loginRequiredMessage),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('닫기')),
       ],
