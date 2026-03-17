@@ -375,6 +375,11 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
           TextButton(
             onPressed: () async {
               await AuthService.signOut();
+              ref.invalidate(authUserProvider);
+              ref.invalidate(currentUserProfileProvider);
+              ref.invalidate(accountRankingFromServerProvider);
+              ref.invalidate(religionPointsFromServerProvider);
+              ref.invalidate(countryPointsFromServerProvider);
               if (context.mounted) Navigator.pop(context);
             },
             child: const Text('로그아웃'),
