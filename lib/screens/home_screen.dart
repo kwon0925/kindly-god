@@ -11,6 +11,37 @@ import '../widgets/main_popup_overlay.dart';
 import '../widgets/account_dialog.dart';
 import '../widgets/login_only_dialog.dart';
 
+void _showTranslateDialog(BuildContext context) {
+  showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Row(
+        children: const [
+          Icon(Icons.translate, color: Colors.teal),
+          SizedBox(width: 8),
+          Text('페이지 번역'),
+        ],
+      ),
+      content: const SingleChildScrollView(
+        child: Text(
+          '이 페이지는 한국어로 되어 있습니다.\n\n'
+          '번역하려면:\n'
+          '• Chrome/Edge: 주소창 오른쪽의 번역 아이콘을 누르거나,\n'
+          '• 페이지에서 우클릭 후 "Translate to..." 를 선택하세요.\n\n'
+          'This page is in Korean. To translate: use the translate icon in the address bar, or right‑click → Translate to your language.',
+          style: TextStyle(height: 1.4),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: const Text('확인'),
+        ),
+      ],
+    ),
+  );
+}
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -24,6 +55,11 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.article),
             onPressed: () => context.push(AppRoutes.terms),
+          ),
+          IconButton(
+            icon: const Icon(Icons.translate),
+            tooltip: '페이지 번역 안내',
+            onPressed: () => _showTranslateDialog(context),
           ),
           IconButton(
             icon: const Icon(Icons.person),
