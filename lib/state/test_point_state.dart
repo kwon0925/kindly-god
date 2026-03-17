@@ -60,12 +60,6 @@ class TestPointNotifier extends ChangeNotifier {
 
   static const testUserIds = ['A', 'B', 'C'];
 
-  /// 로그아웃/초기화 시 호출: 선택값/테스트 포인트를 모두 초기화
-  void reset() {
-    _state = const TestPointState();
-    notifyListeners();
-  }
-
   void setTestUser(String? userId) {
     _state = _state.copyWith(currentTestUser: userId);
     notifyListeners();

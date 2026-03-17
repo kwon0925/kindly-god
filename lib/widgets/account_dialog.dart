@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../constants/account_dialog_strings.dart';
 import '../models/religion.dart';
 import '../models/country.dart';
 import '../repository/user_profile_repository.dart';
 import '../services/auth_service.dart';
-import '../config/routes.dart';
 import '../state/test_point_provider.dart';
 import '../state/user_profile_provider.dart';
 
@@ -377,18 +375,7 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
           TextButton(
             onPressed: () async {
               await AuthService.signOut();
-              // 앱 내부 상태 초기화 (이전 계정의 선택값/캐시 잔상 제거)
-              ref.read(testPointProvider).reset();
-              ref.invalidate(currentUserProfileProvider);
-              // 랭킹 스트림도 새 로그인 시 깨끗하게 다시 구독
-              ref.invalidate(accountRankingFromServerProvider);
-              ref.invalidate(religionPointsFromServerProvider);
-              ref.invalidate(countryPointsFromServerProvider);
-
-              if (!context.mounted) return;
-              Navigator.pop(context); // 다이얼로그 닫기
-              // 화면 스택을 로그인으로 리셋
-              context.go(AppRoutes.login);
+              if (context.mounted) Navigator.pop(context);
             },
             child: const Text('로그아웃'),
           ),
