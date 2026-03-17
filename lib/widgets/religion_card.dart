@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import '../models/religion.dart';
+import 'rank_medal_overlay.dart';
 
 class ReligionCard extends StatelessWidget {
   final Religion religion;
   final VoidCallback? onTap;
+  /// 1·2·3위일 때만 전달. 이미지 상단에 "N위" + 메달 아이콘 오버레이 표시.
+  final int? rank;
 
-  const ReligionCard({super.key, required this.religion, this.onTap});
+  const ReligionCard({
+    super.key,
+    required this.religion,
+    this.onTap,
+    this.rank,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +51,14 @@ class ReligionCard extends StatelessWidget {
                 ),
               ),
             ),
+            // 1·2·3위 순위 + 메달 오버레이 (이미지 상단)
+            if (rank != null && rank! >= 1 && rank! <= 3)
+              Positioned(
+                top: 6,
+                left: 6,
+                right: 6,
+                child: RankMedalOverlay(rank: rank!),
+              ),
             // 콘텐츠
             Padding(
               padding: const EdgeInsets.all(10),

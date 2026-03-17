@@ -3,8 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../config/routes.dart';
 import '../services/auth_service.dart';
 import '../widgets/responsive_layout.dart';
-import '../widgets/ranking_tabs.dart';
-import '../widgets/home_religion_grid.dart';
+import '../widgets/home_ranking_section.dart';
 import '../widgets/home_activity_section.dart';
 import '../widgets/home_board_section.dart';
 import '../widgets/main_popup_overlay.dart';
@@ -79,28 +78,7 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              Text(
-                '종교별 · 계정별 랭킹',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              const RankingTabs(),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '종교별 응원 포인트',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  TextButton(
-                    onPressed: () => context.push(AppRoutes.religions),
-                    child: const Text('전체보기'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              const HomeReligionGrid(),
+              const HomeRankingSection(),
               const SizedBox(height: 24),
               const HomeActivitySection(),
               const SizedBox(height: 24),

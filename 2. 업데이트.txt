@@ -138,4 +138,205 @@
 
 ---
 
-*위 내용은 2025-03-11 기준 작성 후, 2026-03-15 업데이트를 반영한 것입니다.*
+## 12. 2026년 3월 16일 업데이트
+
+### 12-1. 빌드·푸시·배포
+- 로컬 `flutter build web` 후 `build/web` 커밋 → GitHub main 푸시 → Vercel 자동 배포
+- Firebase CLI: 프로젝트 전환(fastapi-js → kindly-god), `.firebaserc` default: kindly-god
+- Firestore 보안 규칙: `npx firebase use kindly-god` 후 `npx firebase deploy --only firestore:rules` 로 kindly-god 프로젝트에 배포 완료
+
+### 12-2. Vercel 배포 후 channel-error (Firebase 연동 실패)
+- 증상: 로컬은 정상, 배포 사이트에서 랭킹 무한 로딩, 아이디 중복 검사 무반응
+- 콘솔 에러: `PlatformException(channel-error, Unable to establish connection on channel., null, null)` (Auth/Firestore JS 채널 미연결)
+- 원인: Flutter 웹 PWA 서비스워커가 예전 빌드(main.dart.js 등)를 캐시해 새 배포가 반영되지 않음
+- 확인: Firebase Auth 승인된 도메인에 kindly-god.vercel.app 이미 등록됨 → 도메인 문제 아님
+- 해결(당시): 시크릿 모드 또는 브라우저에서 해당 사이트 서비스워커 Unregister + Clear site data 후 재접속 시 정상
+
+### 12-3. PWA 서비스워커 비활성화 (캐시 문제 근본 해결)
+- 웹 빌드 시 `--pwa-strategy=none` 적용 → 서비스워커 미생성
+- 명령: `flutter build web --release --pwa-strategy=none`
+- 효과: 배포 시 항상 최신 JS 로드, 사용자에게 캐시 삭제 요청 불필요. 기존 방문자도 1~2회 재접속 시 최신 버전으로 전환
+
+### 12-4. 빌드·푸시·배포 재실행
+- `flutter clean` → `flutter pub get` → `flutter build web --release --pwa-strategy=none`
+- `git add -f build/web` → commit → push origin main (Vercel 자동 배포)
+
+### 12-5. 천국의 땅 분양 (가칭) — 삭제함, 나중에 적용용 코딩만 보관
+- 홈 화면 랭킹 아래에 임시 섹션(HomeHeavenLandSection) 추가 후 로컬 테스트용으로만 사용
+- **현재 앱에서는 삭제됨.** 아래 코딩 내용은 나중에 판매/PDF 증서 기능 구현 시 참고용으로만 적용.
+
+---
+
+#### [나중에 적용] 천국의 땅 섹션 위젯 파일
+
+**파일 생성: lib/widgets/home_heaven_land_section.dart**
+
+```dart
+import 'package:flutter/material.dart';
+
+/// 홈 화면 상단에 임시로 노출하는 "천국의 땅" 섹션.
+/// - 당장은 로컬 테스트용으로만 사용.
+class HomeHeavenLandSection extends StatelessWidget {
+  const HomeHeavenLandSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Card(
+      margin: const EdgeInsets.only(top: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.cloud_queue_rounded,
+              size: 40,
+              color: colorScheme.primary,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '천국의 땅 분양 (임시)',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '나만의 천국 좌표를 소유하고 PDF 증서를 발급받는 상품입니다. '
+                    '현재는 콘셉트 테스트 단계입니다.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: const [
+                      _TagChip(label: 'PDF 소유 증서'),
+                      _TagChip(label: '한정 좌표'),
+                      _TagChip(label: '닉네임 기재'),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FilledButton(
+                      onPressed: () {
+                        showDialog<void>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('천국의 땅 (테스트용)'),
+                            content: const Text(
+                              '여기는 임시로 배치한 섹션입니다.\n\n'
+                              '실제 판매 화면과 PDF 증서 발급 플로우는 '
+                              '향후 별도 화면(/heaven-lands 등)으로 구현할 예정입니다.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(),
+                                child: const Text('확인'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: const Text('천국의 땅 콘셉트 보기'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TagChip extends StatelessWidget {
+  final String label;
+
+  const _TagChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Colors.grey.shade800,
+              fontWeight: FontWeight.w500,
+            ),
+      ),
+    );
+  }
+}
+```
+
+**홈 화면에 넣을 때 (lib/screens/home_screen.dart):**
+- import 추가: `import '../widgets/home_heaven_land_section.dart';`
+- Column children 안, `const RankingTabs(),` 다음 줄에: `const HomeHeavenLandSection(),`
+
+---
+
+*위 내용은 2025-03-11 기준 작성 후, 2026-03-15·2026-03-16 업데이트를 반영한 것입니다.*
+
+---
+
+## 13. 2026년 3월 17일 업데이트
+
+### 13-1. 홈 UI 개편: “랭킹” + “종교별 응원 포인트” 통합
+- 기존 홈의 `RankingTabs`(종교별·계정별 랭킹) + `HomeReligionGrid`(종교별 응원 포인트) 구조를 **하나의 통합 섹션**으로 재구성
+- 홈 화면은 `HomeRankingSection` 단일 섹션으로 운영 (유지보수/확장 용이하도록 파일 분리)
+
+### 13-2. 기간/타입 탭 개편
+- 기간 탭: **오늘 / 이번주 / 이번달 / 전체** (기존 “1년” → “전체”로 변경)
+- 타입 탭: **종교 / 계정 / 국가**
+- `lib/models/ranking.dart`
+  - `RankingPeriod.year` → `RankingPeriod.all`
+  - `rankingPeriodLabels`, `rankingTypeLabels` 상수 추가
+
+### 13-3. 상위 1·2·3위 메달 오버레이
+- 1·2·3위 카드에 **순위 텍스트 + 메달(🥇🥈🥉)** 을 이미지/카드 상단에 겹쳐 표시
+- 공용 위젯 분리: `lib/widgets/rank_medal_overlay.dart`
+- `lib/widgets/religion_card.dart`: `rank` 파라미터 추가 후 오버레이 적용
+
+### 13-4. 국가 카드 + 국기 표시
+- 국가 탭에서 국가명/포인트와 함께 **국기 이미지 노출**
+- `assets/images/flags/` 폴더의 파일명 suffix(`_kr`, `_jp`, …)를 기준으로 국가 코드 매핑
+- `lib/models/country.dart`: `Country.flagAssetPath(countryId)` 추가 (KR/JP/US/CN/IN/GB/DE/FR/BR/ID 매핑)
+- `lib/widgets/country_card.dart`: 국기 이미지 크기 확대(비율 유지 `BoxFit.contain`)
+
+### 13-5. 국기 asset 404 해결
+- Flutter Web에서 국기 파일이 404로 로드 실패하던 문제 해결
+- `pubspec.yaml`에 국기 폴더를 명시적으로 등록:
+  - `assets/images/flags/`
+
+### 13-6. 종교/국가 노출 정책 개선
+- 종교 탭: 포인트가 0이어도 **항상 기본 종교 목록을 포함**하여 상위 8개 노출 + 전체보기
+- 국가 탭: 종교 탭과 동일하게 **0포인트 포함** 상위 8개 노출
+- 동점일 때는 “랜덤 노출” 요구를 만족하되 UI가 계속 바뀌지 않도록:
+  - **하루(UTC) 단위 시드 기반**으로 동점 그룹만 셔플 (같은 날에는 고정, 날짜가 바뀌면 변화)
+
+### 13-7. 계정 탭에 국가·종교 표시
+- 계정 랭킹 리스트에서 아이디(표시명) 아래에 **국가 · 종교**를 `subtitle`로 표시
+- 서버 계정: `UserProfile.religionId`/`countryId` → `defaultReligions`/`defaultCountries`에서 이름 매핑
+- 로컬 테스트 계정(A/B/C): 종교/국가 정보가 없으므로 미표시
+

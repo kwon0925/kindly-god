@@ -18,18 +18,8 @@ class _RankingTabsState extends ConsumerState<RankingTabs> {
   RankingPeriod _period = RankingPeriod.today;
   RankingType _type = RankingType.religion;
 
-  static const periodLabels = {
-    RankingPeriod.today: '오늘',
-    RankingPeriod.week: '이번주',
-    RankingPeriod.month: '이번달',
-    RankingPeriod.year: '1년',
-  };
-
-  static const typeLabels = {
-    RankingType.religion: '종교별',
-    RankingType.account: '계정별',
-    RankingType.country: '국가별',
-  };
+  static const periodLabels = rankingPeriodLabels;
+  static const typeLabels = rankingTypeLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +53,7 @@ class _RankingTabsState extends ConsumerState<RankingTabs> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
-                      label: Text(periodLabels[p]!),
+                      label: Text(periodLabels[p] ?? ''),
                       selected: _period == p,
                       onSelected: (_) => setState(() => _period = p),
                     ),
@@ -79,7 +69,7 @@ class _RankingTabsState extends ConsumerState<RankingTabs> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
-                      label: Text(typeLabels[t]!),
+                      label: Text(typeLabels[t] ?? ''),
                       selected: _type == t,
                       onSelected: (_) => setState(() => _type = t),
                     ),
