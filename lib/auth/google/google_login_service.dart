@@ -24,7 +24,9 @@ class GoogleLoginService {
     try {
       if (kIsWeb) {
         final provider = GoogleAuthProvider();
-        provider.setCustomParameters({'prompt': 'select_account'});
+        // 웹은 브라우저의 Google 세션(쿠키)에 따라 이전 계정이 자동으로 재사용될 수 있다.
+        // prompt를 강하게 줘서 계정 선택/동의를 최대한 유도한다.
+        provider.setCustomParameters({'prompt': 'select_account consent'});
         await auth.signInWithPopup(provider);
         return const GoogleLoginResult(success: true);
       } else {
