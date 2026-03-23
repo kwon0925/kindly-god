@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../config/app_brand.dart';
 import '../config/routes.dart';
 import '../services/auth_service.dart';
 import '../widgets/responsive_layout.dart';
 import '../widgets/home_ranking_section.dart';
+import '../widgets/home_heaven_section.dart';
 import '../widgets/home_activity_section.dart';
 import '../widgets/home_board_section.dart';
 import '../widgets/main_popup_overlay.dart';
 import '../widgets/account_dialog.dart';
 import '../widgets/login_only_dialog.dart';
+import '../widgets/version_badge.dart';
 
 void _showTranslateDialog(BuildContext context) {
   showDialog<void>(
@@ -49,7 +52,14 @@ class HomeScreen extends StatelessWidget {
     return MainPopupOverlay(
       child: Scaffold(
       appBar: AppBar(
-        title: const Text('Kindly'),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            VersionBadge(),
+            SizedBox(width: 8),
+            Text(kAppDisplayName),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.article),
@@ -79,6 +89,8 @@ class HomeScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 16),
               const HomeRankingSection(),
+              const SizedBox(height: 24),
+              const HomeHeavenSection(),
               const SizedBox(height: 24),
               const HomeActivitySection(),
               const SizedBox(height: 24),

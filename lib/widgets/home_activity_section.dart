@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../config/routes.dart';
-import '../data/dummy_board.dart';
-import '../models/board_post.dart';
+import '../models/community_post.dart';
+import 'post_list_widget.dart';
 
-/// 메인 화면에 노출하는 활동 소식 섹션 (코드 분리용)
+/// 메인 화면 활동 소식 섹션 (Firestore 통합, category: news)
 class HomeActivitySection extends StatelessWidget {
   const HomeActivitySection({super.key});
 
@@ -27,85 +27,14 @@ class HomeActivitySection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        SizedBox(
-          height: 140,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: dummyBoardPosts.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, i) {
-              final post = dummyBoardPosts[i];
-              return _ActivityCard(post: post);
-            },
-          ),
+        const PostListWidget(
+          religion: null,
+          category: PostCategory.news,
+          limit: 5,
+          listStyle: PostListStyle.horizontal,
+          emptyMessage: '아직 활동 소식이 없습니다.',
         ),
       ],
-    );
-  }
-}
-
-class _ActivityCard extends StatelessWidget {
-  final BoardPost post;
-
-  const _ActivityCard({required this.post});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 280,
-      child: Card(
-        child: InkWell(
-          onTap: () => context.push(AppRoutes.boardDetailPath(post.id)),
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: SizedBox(
-                    width: 70,
-                    height: 70,
-                    child: Image.asset(
-                      post.imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        color: Colors.grey.shade300,
-                        child: const Icon(Icons.image, size: 32),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        post.title,
-                        style: Theme.of(context).textTheme.titleSmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        post.summary,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey.shade700,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

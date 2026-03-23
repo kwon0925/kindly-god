@@ -1,6 +1,6 @@
 # Kindly 업데이트 내역
 
-**기준일: 2025년 3월 11일**
+**기준일: 2026년 3월 20일**
 
 ---
 
@@ -339,4 +339,102 @@ class _TagChip extends StatelessWidget {
 - 계정 랭킹 리스트에서 아이디(표시명) 아래에 **국가 · 종교**를 `subtitle`로 표시
 - 서버 계정: `UserProfile.religionId`/`countryId` → `defaultReligions`/`defaultCountries`에서 이름 매핑
 - 로컬 테스트 계정(A/B/C): 종교/국가 정보가 없으므로 미표시
+
+### 13-8. 구글 로그인 계정 전환(로그아웃 후 B 로그인 시 A 정보 잔상) 문제 해결
+- 문제: A로 로그인 후 로그아웃 → B로 로그인했는데도 UI에 A의 “비활성화/잠금” 상태가 남아 보이는 현상
+- 원인: `currentUserProfileProvider`가 `AuthService.currentUser`(스냅샷) 기반으로 구성되어 **Auth 상태 변경(A→null→B)** 에 따라 스트림/캐시가 자동으로 재구독되지 않을 수 있음
+- 해결:
+  - Auth 상태 스트림을 Provider 그래프에 연결 (`authStateChanges` 기반 `authUserProvider` 추가)
+  - `currentUserProfileProvider`가 `authUserProvider`에 의존하도록 변경해 **계정 변경 시 프로필 스트림 자동 갱신**
+  - 로그아웃 시 관련 Provider들을 `invalidate()` 하여 잔상/캐시 제거
+- 결과: 계정 전환 시 **정상적으로 B 계정 기준으로 화면이 갱신됨** (테스트 완료)
+
+---
+
+## 14. 2026년 3월 18일 업데이트
+
+### 14-1. 통합 게시판 스키마 확장 (활동소식/자유게시판 통합 운영)
+- Firestore `posts` 컬렉션에 필드 추가:
+  - `category`: `'news' | 'board'`
+  - `religion`: 가입 시 선택한 종교 id (예: `judaism`, `buddhism` 등)
+  - (옵션) `likeCount` 기본값 포함
+- `lib/models/community_post.dart`:
+  - `PostCategory` 상수 추가
+  - `category`, `religion`, `likeCount` 모델 반영 및 직렬화(from/to Firestore) 반영
+
+### 14-2. 공통 목록 위젯 도입: PostListWidget
+- `lib/widgets/post_list_widget.dart` 추가:
+  - `PostListWidget(String? religion, String? category)` 형태로 재사용
+  - Stream 기반 실시간 갱신 + `orderBy(createdAt)` + `limit` 적용
+  - 홈(임베드)용 `scrollable=false` / 전체화면용 `scrollable=true` 지원
+- `lib/models/post_list_filter.dart`, `lib/state/board_provider.dart`:
+  - 필터 파라미터 + `filteredBoardPostsProvider`(family) 추가
+
+### 14-3. “가입 종교에서만 글쓰기 가능” 정책 적용 (UI + Firestore Rules)
+- 앱 정책: 유저는 **가입 시 선택한 종교 게시판에서만 글 작성 가능**
+- UI:
+  - `lib/screens/religion_detail_screen.dart`: 내 `religionId`와 화면 종교가 같을 때만 “글쓰기” 버튼 노출
+  - `lib/screens/board_general_screen.dart`: 내 `religionId`가 있을 때만 “글쓰기” 버튼 노출 (내 종교로만 진입)
+- 작성 로직:
+  - `lib/widgets/board_write_form.dart`: 게시글 저장 시 `users/{uid}.religionId`를 읽어 `posts.religion`에 강제 저장
+- 보안:
+  - `firestore.rules`: `posts` create 시 `request.resource.data.religion == users/{uid}.religionId` 조건 추가로 서버단 강제
+
+### 14-4. 홈/게시판 화면 연동 정리
+- 홈:
+  - `HomeActivitySection` → `PostListWidget(category: news, limit: 5, horizontal)`
+  - `HomeBoardSection` → `PostListWidget(category: board, limit: 5)`
+- 게시판 전체보기:
+  - `BoardGeneralScreen` → `PostListWidget(category: board, scrollable: true)`
+
+### 14-5. Firestore 인덱스/배포 및 Hosting 배포 정리
+- Firestore:
+  - `firestore.indexes.json` 추가 및 `firebase.json`에 indexes 연결
+  - `firebase deploy --only firestore:rules,firestore:indexes`로 배포 완료
+- Hosting:
+  - `firebase.json`에 hosting 설정 추가(`public: build/web`, SPA rewrite 포함)
+  - `flutter build web --release --pwa-strategy=none` 후 `firebase deploy --only hosting` 배포 완료
+  - 접속 주소: `https://kindly-god.web.app`
+
+### 14-6. 버전 표시 (배포 버전 확인용)
+- 메인 AppBar 제목 좌측에 빨간색 버전 라벨 표시: `v1.0.0`
+- 코드 분리:
+  - `lib/config/app_version.dart` (버전 문자열)
+  - `lib/widgets/version_badge.dart` (표시 위젯)
+
+---
+
+## 15. 2026년 3월 20일 업데이트
+
+### 15-1. 어드민(테스트) 접속
+- 계정 팝업·로그인 전용 팝업에 **어드민 접속** 버튼 추가
+- Firebase Auth **익명 로그인** 후 `users/{uid}`에 `role: 'admin'` 기록 (`grantAdminRole`)
+- 코드 분리: `lib/auth/admin/admin_role.dart`, `lib/auth/admin/admin_auth_service.dart`, `AuthService.signInAsAdmin()`
+- 익명 로그인 미활성화 시 콘솔에서 Anonymous 제공자 켜기 안내
+
+### 15-2. 어드민 권한 (게시판)
+- Firestore Rules: `isAdmin()` 기준으로 게시글·댓글 삭제·게시글 작성(종교 제한 우회) 등 허용
+- UI: `board_general_screen`, `religion_detail_screen`에서 어드민은 **글쓰기 FAB** 노출, `board_write_form`·상세 화면에서 삭제/작성 동작 정리
+- Rules 배포: `firebase deploy --only firestore:rules`로 반영
+
+### 15-3. 랭킹 기간 탭 + 포인트 원장(`pointEvents`)
+- 메인 랭킹: **오늘 / 이번주 / 이번달 / 전체**를 서버 데이터 기준으로 집계
+  - 오늘: 로컬 **0시~24시**
+  - 이번주: **월요일 0시 ~ 다음 주 월요일 0시**
+  - 이번달: **당월 1일 ~ 다음 달 1일**
+  - 전체: 기존 `users` 누적 집계 유지
+- 결제 적립·광고 적립 시 `pointEvents` 문서에 **타임스탬프·uid·종교·국가·포인트·유형(payment/adWatch)·amountUsd** 기록
+- Provider: `accountRankingByPeriodProvider`, `religionPointsByPeriodProvider`, `countryPointsByPeriodProvider`
+- `home_ranking_section`: 기간별 provider로 표시 (과거 데이터는 원장 없으면 기간 탭에만 반영 안 될 수 있음)
+
+### 15-4. Firestore Rules (`pointEvents`)
+- `pointEvents`: 읽기 공개(랭킹), 생성은 로그인 사용자·본인 `uid`만, 수정/삭제 불가
+
+### 15-5. 버전·배포
+- 앱 버전: `pubspec.yaml` **1.0.4+4**, 표시 라벨 **v1.0.4** (`app_version.dart`)
+- 웹 빌드: `flutter build web --release --pwa-strategy=none`
+- Firebase Hosting 배포 완료: `https://kindly-god.web.app`
+
+### 15-6. 기타 수정
+- 기간 쿼리용 `_periodEventSnapshot`: Firestore `Query` 타입 명시로 웹 빌드 오류 수정
 

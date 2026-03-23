@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../auth/admin/admin_role.dart';
 import '../constants/account_dialog_strings.dart';
 import '../models/religion.dart';
 import '../models/country.dart';
 import '../repository/user_profile_repository.dart';
 import '../services/auth_service.dart';
+import '../state/locale_provider.dart';
 import '../state/test_point_provider.dart';
 import '../state/user_profile_provider.dart';
+import 'language_picker_sheet.dart';
 
-/// 메인 화면 우측 상단 사람 아이콘 탭 시 표시 (테스트 유저, 종교/국가 선택, Google 로그인)
+/// ?? ?? ?? ?? ?? ??? ? ? ??
 class AccountDialog extends ConsumerStatefulWidget {
   const AccountDialog({super.key});
 
@@ -30,6 +34,8 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
   bool _savingReligionCountry = false;
   bool _checkingDuplicate = false;
   CheckDisplayNameResult? _duplicateCheckResult;
+  bool _adminSigningIn = false;
+  String? _adminError;
 
   @override
   void dispose() {
@@ -38,10 +44,11 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
   }
 
   Future<void> _checkDuplicate(String name) async {
+    final l10n = AppLocalizations.of(context);
     if (name.trim().isEmpty) {
       setState(() {
         _duplicateCheckResult = CheckDisplayNameResult.empty;
-        _idError = '아이디를 입력해 주세요.';
+        _idError = l10n.idEmpty;
       });
       return;
     }
@@ -55,17 +62,18 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     setState(() {
       _checkingDuplicate = false;
       _duplicateCheckResult = result;
-      if (result == CheckDisplayNameResult.duplicate) _idError = '이미 사용 중인 아이디입니다.';
-      if (result == CheckDisplayNameResult.empty) _idError = '아이디를 입력해 주세요.';
+      if (result == CheckDisplayNameResult.duplicate) _idError = l10n.idDuplicate;
+      if (result == CheckDisplayNameResult.empty) _idError = l10n.idEmpty;
     });
   }
 
   void _pickReligion(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final rid = ref.read(testPointProvider).state.selectedReligionId;
     showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('나의 종교'),
+        title: Text(l10n.myReligion),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -89,11 +97,12 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
   }
 
   void _pickCountry(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final cid = ref.read(testPointProvider).state.selectedCountryId;
     showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('나의 국가'),
+        title: Text(l10n.myCountry),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -117,9 +126,10 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
   }
 
   Future<void> _saveDisplayName(String uid) async {
+    final l10n = AppLocalizations.of(context);
     final name = _displayNameController.text.trim();
     if (name.isEmpty) {
-      setState(() => _idError = '아이디를 입력해 주세요.');
+      setState(() => _idError = l10n.idEmpty);
       return;
     }
     setState(() {
@@ -135,18 +145,18 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
         setState(() => _idError = null);
         break;
       case SetDisplayNameResult.duplicate:
-        setState(() => _idError = '이미 사용 중인 아이디입니다.');
+        setState(() => _idError = l10n.idDuplicate);
         break;
       case SetDisplayNameResult.empty:
-        setState(() => _idError = '아이디를 입력해 주세요.');
+        setState(() => _idError = l10n.idEmpty);
         break;
       case SetDisplayNameResult.failure:
-        setState(() => _idError = failureMessage ?? '저장에 실패했습니다.');
+        setState(() => _idError = failureMessage ?? l10n.error);
         break;
     }
   }
 
-  /// 종교·국가 확인 다이얼로그 표시. 사용자가 '확인'을 누르면 true 반환.
+  /// ??�?? ?? ?????. ???? '??'? ??? true ??.
   Future<bool> _showReligionCountryConfirmDialog() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -174,7 +184,7 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     if (rid == null || cid == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('종교와 국가를 모두 선택한 뒤 저장해 주세요.')),
+          const SnackBar(content: Text('??? ??? ?? ??? ? ??? ???.')),
         );
       }
       return;
@@ -194,7 +204,7 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('저장 실패: ${e.toString().length > 50 ? "네트워크를 확인해 주세요." : e}')),
+          SnackBar(content: Text('?? ??: ${e.toString().length > 50 ? "????? ??? ???." : e}')),
         );
       }
     } finally {
@@ -202,10 +212,43 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     }
   }
 
+  Future<void> _signInAsAdmin() async {
+    setState(() {
+      _adminSigningIn = true;
+      _adminError = null;
+    });
+    try {
+      final result = await AuthService.signInAsAdmin();
+      if (!mounted) return;
+      setState(() => _adminSigningIn = false);
+      if (!result.success) {
+        setState(() => _adminError = result.message ?? '??? ??? ??');
+        return;
+      }
+      ref.invalidate(authUserProvider);
+      ref.invalidate(currentUserProfileProvider);
+      ref.invalidate(accountRankingFromServerProvider);
+      ref.invalidate(religionPointsFromServerProvider);
+      ref.invalidate(countryPointsFromServerProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).adminAccessSuccess)),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _adminSigningIn = false;
+        _adminError = '??? ??? ??';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final testState = ref.watch(testPointProvider).state;
     final user = AuthService.currentUser;
+    final l10n = AppLocalizations.of(context);
 
     if (user != null) {
       final profileAsync = ref.watch(currentUserProfileProvider);
@@ -219,6 +262,7 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
       }
       final rid = profile?.religionId ?? testState.selectedReligionId;
       final cid = profile?.countryId ?? testState.selectedCountryId;
+      final isAdmin = AdminRole.isAdmin(profile?.role);
       final religionName = rid != null
           ? defaultReligions.firstWhere((r) => r.id == rid, orElse: () => defaultReligions.first).name
           : null;
@@ -226,18 +270,18 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
           ? defaultCountries.firstWhere((c) => c.id == cid, orElse: () => defaultCountries.first).name
           : null;
       final locked = profile?.profileLocked ?? false;
-      final maxH = MediaQuery.sizeOf(context).height * 0.55 - 20;
+      final maxH = MediaQuery.sizeOf(context).height * 0.6 - 20;
 
       final errorColor = Theme.of(context).colorScheme.error;
       return AlertDialog(
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(AccountDialogStrings.titleAccount),
+            Text(l10n.account),
             const SizedBox(width: 8),
             Flexible(
               child: Text(
-                user.email ?? '로그인됨',
+                '${user.email ?? '????'}${isAdmin ? ' (ADMIN)' : ''}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade700),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -246,26 +290,29 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
         ),
         contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
         content: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: maxH.clamp(200.0, 500.0)),
+          constraints: BoxConstraints(maxHeight: maxH.clamp(200.0, 560.0)),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ??? ??
                 if (profile != null) ...[
                   const SizedBox(height: 10),
                   Row(
                     children: [
                       Icon(Icons.play_circle_outline, size: 16, color: Colors.grey.shade600),
                       const SizedBox(width: 6),
-                      Text('광고 시청 ${profile.adWatchCount}회', style: Theme.of(context).textTheme.bodySmall),
+                      Text(l10n.adWatchCount(profile.adWatchCount), style: Theme.of(context).textTheme.bodySmall),
                       const SizedBox(width: 16),
                       Icon(Icons.volunteer_activism, size: 16, color: Colors.grey.shade600),
                       const SizedBox(width: 6),
-                      Text('기부 포인트 ${profile.points} P', style: Theme.of(context).textTheme.bodySmall),
+                      Text(l10n.donationPoints(profile.points), style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
                 ],
+
+                // ?? ??
                 if (locked) ...[
                   const SizedBox(height: 10),
                   Container(
@@ -281,7 +328,7 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            AccountDialogStrings.lockedWarning,
+                            l10n.lockedWarning,
                             style: TextStyle(fontSize: 12, color: errorColor, fontWeight: FontWeight.w500),
                           ),
                         ),
@@ -289,8 +336,22 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 12),
-                const Text('아이디 (랭킹에 표시)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+
+                // ?? ?? ?? (profileLocked? ???? ?? ???) ??
+                const SizedBox(height: 16),
+                Text(l10n.languageSettings, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                const SizedBox(height: 4),
+                const LanguagePickerTile(),
+
+                // ??? ??
+                if (_adminError != null) ...[
+                  const SizedBox(height: 8),
+                  Text(_adminError!, style: TextStyle(fontSize: 12, color: errorColor)),
+                ],
+
+                // ???
+                const SizedBox(height: 16),
+                Text(l10n.myId, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 4),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,10 +361,18 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                         controller: _displayNameController,
                         readOnly: locked,
                         decoration: InputDecoration(
-                          hintText: '원하는 아이디 입력',
+                          hintText: l10n.myIdHint,
                           isDense: true,
                           errorText: _idError,
+                          filled: true,
+                          fillColor: locked ? Colors.grey.shade100 : null,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: locked ? Colors.grey.shade400 : Theme.of(context).colorScheme.outline,
+                            ),
+                          ),
                         ),
                         onSubmitted: locked ? null : (_) => _saveDisplayName(user.uid),
                       ),
@@ -314,12 +383,14 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                         onPressed: _checkingDuplicate ? null : () => _checkDuplicate(_displayNameController.text),
                         child: _checkingDuplicate
                             ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                            : const Text('중복 검사'),
+                            : Text(l10n.duplicateCheck),
                       ),
                       const SizedBox(width: 6),
                       FilledButton(
                         onPressed: _idSaving ? null : () => _saveDisplayName(user.uid),
-                        child: _idSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('저장'),
+                        child: _idSaving
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                            : Text(l10n.save),
                       ),
                     ],
                   ],
@@ -327,31 +398,32 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                 if (!locked && _duplicateCheckResult == CheckDisplayNameResult.available)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text('사용 가능한 아이디입니다.', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary)),
+                    child: Text(l10n.idAvailable, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary)),
                   ),
-                if (_idError != null) const SizedBox(height: 4),
+
+                // ?? / ??
                 const SizedBox(height: 16),
-                const Text('나의 종교', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                Text(l10n.myReligion, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 4),
                 _SelectField(
                   value: religionName,
-                  hint: '선택하기',
+                  hint: l10n.select,
                   onTap: locked ? null : () => _pickReligion(context),
                   enabled: !locked,
                 ),
                 const SizedBox(height: 8),
-                const Text('나의 국가', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                Text(l10n.myCountry, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 4),
                 _SelectField(
                   value: countryName,
-                  hint: '선택하기',
+                  hint: l10n.select,
                   onTap: locked ? null : () => _pickCountry(context),
                   enabled: !locked,
                 ),
                 if (!locked) ...[
                   const SizedBox(height: 10),
                   Text(
-                    AccountDialogStrings.beforeSaveHint,
+                    l10n.beforeSaveHint,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: errorColor, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 6),
@@ -362,16 +434,24 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                       icon: _savingReligionCountry
                           ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                           : const Icon(Icons.check, size: 18),
-                      label: Text(_savingReligionCountry ? '확인 중...' : AccountDialogStrings.confirmButtonLabel),
+                      label: Text(_savingReligionCountry ? l10n.saving : AccountDialogStrings.confirmButtonLabel),
                     ),
                   ),
                 ],
+                const SizedBox(height: 4),
               ],
             ),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('닫기')),
+          TextButton.icon(
+            onPressed: _adminSigningIn ? null : _signInAsAdmin,
+            icon: _adminSigningIn
+                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.admin_panel_settings_outlined, size: 16),
+            label: Text(_adminSigningIn ? l10n.adminAccessLoading : l10n.adminAccess),
+          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.close)),
           TextButton(
             onPressed: () async {
               await AuthService.signOut();
@@ -382,25 +462,34 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
               ref.invalidate(countryPointsFromServerProvider);
               if (context.mounted) Navigator.pop(context);
             },
-            child: const Text('로그아웃'),
+            child: Text(l10n.logout),
           ),
         ],
       );
     }
 
-    // 비로그인 시 계정 팝업 진입(정상 경로는 사람 버튼 → LoginOnlyDialog).
-    // 진입 시 로그인만 보이므로 여기선 안내만 표시.
+    // ????: ??? ?? + ?? ??
     return AlertDialog(
-      title: const Text(AccountDialogStrings.loginRequiredTitle),
-      content: const Text(AccountDialogStrings.loginRequiredMessage),
+      title: Text(l10n.loginRequired),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.loginRequiredMessage),
+          const SizedBox(height: 20),
+          Text(l10n.languageSettings, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          const SizedBox(height: 6),
+          const LanguagePickerTile(),
+        ],
+      ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('닫기')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.close)),
       ],
     );
   }
 }
 
-/// 종교·국가 선택용 흰색 배경 필드 (TextField처럼 보이도록)
+/// ??�?? ??? ?? ?? ??
 class _SelectField extends StatelessWidget {
   final String? value;
   final String hint;

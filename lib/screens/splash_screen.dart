@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../config/app_brand.dart';
 import '../config/routes.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -38,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
               Icon(Icons.volunteer_activism, size: 80, color: Colors.white.withOpacity(0.95)),
               const SizedBox(height: 24),
               Text(
-                'Kindly',
+                kAppDisplayName,
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

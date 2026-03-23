@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../auth/admin/admin_role.dart';
 import '../repository/board_repository.dart';
 import '../repository/user_profile_repository.dart';
 import '../services/auth_service.dart';
 import '../state/board_provider.dart';
+import '../state/user_profile_provider.dart';
+import '../widgets/translate_button.dart';
 
-/// 게시글 상세 + 댓글 화면 (Firestore 실시간)
+/// ??? ?? + ?? ?? (Firestore ???)
 class BoardGeneralDetailScreen extends ConsumerStatefulWidget {
   final String postId;
 
@@ -32,7 +36,7 @@ class _BoardGeneralDetailScreenState
   Future<void> _submitComment() async {
     final user = AuthService.currentUser;
     if (user == null) {
-      _showSnack('댓글을 작성하려면 로그인이 필요합니다.');
+      _showSnack(AppLocalizations.of(context).loginRequired);
       return;
     }
     if (_commentController.text.trim().isEmpty) return;
@@ -42,7 +46,7 @@ class _BoardGeneralDetailScreenState
       final profile = await UserProfileRepository.getProfile(user.uid);
       final displayName = (profile?.displayName?.isNotEmpty == true)
           ? profile!.displayName!
-          : (user.email?.split('@').first ?? '사용자');
+          : (user.email?.split('@').first ?? '???');
 
       await BoardRepository.createComment(
         postId: widget.postId,
@@ -53,34 +57,35 @@ class _BoardGeneralDetailScreenState
       );
       _commentController.clear();
     } catch (e) {
-      if (mounted) _showSnack('댓글 등록 실패: $e');
+      if (mounted) _showSnack('?? ?? ??: $e');
     } finally {
       if (mounted) setState(() => _submittingComment = false);
     }
   }
 
   Future<void> _deletePost() async {
-    final ok = await _confirmDialog('게시글을 삭제하시겠습니까?');
+    final ok = await _confirmDialog(AppLocalizations.of(context).deleteConfirm);
     if (!ok) return;
     try {
       await BoardRepository.deletePost(widget.postId);
       if (mounted) context.pop();
     } catch (e) {
-      if (mounted) _showSnack('삭제 실패: $e');
+      if (mounted) _showSnack('?? ??: $e');
     }
   }
 
   Future<void> _deleteComment(String commentId) async {
-    final ok = await _confirmDialog('댓글을 삭제하시겠습니까?');
+    final ok = await _confirmDialog(AppLocalizations.of(context).deleteConfirm);
     if (!ok) return;
     try {
       await BoardRepository.deleteComment(widget.postId, commentId);
     } catch (e) {
-      if (mounted) _showSnack('삭제 실패: $e');
+      if (mounted) _showSnack('?? ??: $e');
     }
   }
 
   Future<bool> _confirmDialog(String message) async {
+    final l10n = AppLocalizations.of(context);
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -88,10 +93,10 @@ class _BoardGeneralDetailScreenState
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('취소')),
+              child: Text(l10n.cancel)),
           FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('삭제')),
+              child: Text(l10n.delete)),
         ],
       ),
     );
@@ -107,20 +112,23 @@ class _BoardGeneralDetailScreenState
     final postAsync = ref.watch(boardPostProvider(widget.postId));
     final commentsAsync = ref.watch(boardCommentsProvider(widget.postId));
     final currentUid = AuthService.currentUser?.uid;
+    final meProfile = ref.watch(currentUserProfileProvider).valueOrNull;
+    final isAdmin = AdminRole.isAdmin(meProfile?.role);
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('게시글'),
+        title: Text(l10n.postLabel),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
         actions: [
           postAsync.whenData((post) {
-            if (post != null && post.authorUid == currentUid) {
+            if (post != null && (post.authorUid == currentUid || isAdmin)) {
               return IconButton(
                 icon: const Icon(Icons.delete_outline),
-                tooltip: '게시글 삭제',
+                tooltip: l10n.deletePost,
                 onPressed: _deletePost,
               );
             }
@@ -134,21 +142,21 @@ class _BoardGeneralDetailScreenState
           Expanded(
             child: postAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('오류: $e')),
+              error: (e, _) => Center(child: Text('??: $e')),
               data: (post) {
                 if (post == null) {
-                  return const Center(child: Text('게시글을 찾을 수 없습니다.'));
+                  return Center(child: Text(l10n.noPost));
                 }
                 return ListView(
                   padding: const EdgeInsets.all(20),
                   children: [
-                    // 제목
+                    // ??
                     Text(
                       post.title,
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
-                    // 작성자 / 날짜
+                    // ??? / ??
                     Row(
                       children: [
                         Icon(
@@ -173,15 +181,18 @@ class _BoardGeneralDetailScreenState
                       ],
                     ),
                     const Divider(height: 32),
-                    // 본문
-                    Text(
-                      post.body,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                    // ?? (?? ?? ??)
+                    TranslateButton(
+                      text: post.body,
+                      builder: (displayText) => Text(
+                        displayText,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
                     ),
                     const SizedBox(height: 32),
-                    // 댓글 섹션
+                    // ?? ??
                     Text(
-                      '댓글',
+                      l10n.commentLabel,
                       style: Theme.of(context)
                           .textTheme
                           .titleMedium
@@ -193,13 +204,13 @@ class _BoardGeneralDetailScreenState
                         padding: EdgeInsets.symmetric(vertical: 12),
                         child: Center(child: CircularProgressIndicator()),
                       ),
-                      error: (e, _) => Text('댓글 오류: $e'),
+                      error: (e, _) => Text('?? ??: $e'),
                       data: (comments) {
                         if (comments.isEmpty) {
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             child: Text(
-                              '첫 번째 댓글을 남겨보세요.',
+                              l10n.firstComment,
                               style: TextStyle(color: Colors.grey.shade500),
                             ),
                           );
@@ -251,11 +262,11 @@ class _BoardGeneralDetailScreenState
                                       ],
                                     ),
                                   ),
-                                  if (isMyComment)
+                                  if (isMyComment || isAdmin)
                                     IconButton(
                                       icon: const Icon(Icons.close, size: 16),
                                       visualDensity: VisualDensity.compact,
-                                      tooltip: '댓글 삭제',
+                                      tooltip: l10n.deleteComment,
                                       onPressed: () => _deleteComment(c.id),
                                     ),
                                 ],
@@ -271,7 +282,7 @@ class _BoardGeneralDetailScreenState
               },
             ),
           ),
-          // 댓글 입력 바
+          // ?? ?? ?
           _CommentInputBar(
             controller: _commentController,
             isAnonymous: _commentAnonymous,
@@ -288,15 +299,15 @@ class _BoardGeneralDetailScreenState
   String _formatDate(DateTime d) {
     final now = DateTime.now();
     final diff = now.difference(d);
-    if (diff.inMinutes < 1) return '방금';
-    if (diff.inHours < 1) return '${diff.inMinutes}분 전';
-    if (diff.inDays < 1) return '${diff.inHours}시간 전';
-    if (diff.inDays < 7) return '${diff.inDays}일 전';
+    if (diff.inMinutes < 1) return '??';
+    if (diff.inHours < 1) return '${diff.inMinutes}? ?';
+    if (diff.inDays < 1) return '${diff.inHours}?? ?';
+    if (diff.inDays < 7) return '${diff.inDays}? ?';
     return '${d.year}.${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
   }
 }
 
-/// 댓글 입력 하단 바
+/// ?? ?? ?? ?
 class _CommentInputBar extends StatelessWidget {
   final TextEditingController controller;
   final bool isAnonymous;
@@ -314,6 +325,7 @@ class _CommentInputBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: EdgeInsets.fromLTRB(
           12, 8, 12, MediaQuery.of(context).viewInsets.bottom + 8),
@@ -330,7 +342,7 @@ class _CommentInputBar extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 익명 체크
+          // ?? ??
           Row(
             children: [
               SizedBox(
@@ -341,7 +353,7 @@ class _CommentInputBar extends StatelessWidget {
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
-              const Text('익명', style: TextStyle(fontSize: 13)),
+              Text(l10n.anonymous, style: const TextStyle(fontSize: 13)),
             ],
           ),
           const SizedBox(height: 4),
@@ -354,8 +366,8 @@ class _CommentInputBar extends StatelessWidget {
                   minLines: 1,
                   decoration: InputDecoration(
                     hintText: AuthService.currentUser == null
-                        ? '로그인 후 댓글을 남길 수 있습니다'
-                        : '댓글을 입력하세요',
+                        ? l10n.loginForComment
+                        : l10n.enterComment,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 10),

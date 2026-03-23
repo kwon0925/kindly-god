@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/ranking.dart';
 
 /// 서버( Firestore ) 사용자 프로필. 계정(uid)과 랭킹 노출용 아이디(displayName) 연동, 중복 검사
 class UserProfileRepository {
@@ -8,9 +9,32 @@ class UserProfileRepository {
   static const _users = 'users';
   static const _displayNames = 'displayNames';
   static const _aggregates = 'aggregates';
+  static const _pointEvents = 'pointEvents';
   static const _pointsTotal = 'pointsTotal';
   static const _religionPoints = 'religionPoints';
   static const _countryPoints = 'countryPoints';
+
+  static ({DateTime? start, DateTime? end}) _rangeForPeriod(RankingPeriod period) {
+    if (period == RankingPeriod.all) return (start: null, end: null);
+    final now = DateTime.now();
+    switch (period) {
+      case RankingPeriod.today:
+        final start = DateTime(now.year, now.month, now.day);
+        return (start: start, end: start.add(const Duration(days: 1)));
+      case RankingPeriod.week:
+        final start = DateTime(now.year, now.month, now.day)
+            .subtract(Duration(days: now.weekday - DateTime.monday));
+        return (start: start, end: start.add(const Duration(days: 7)));
+      case RankingPeriod.month:
+        final start = DateTime(now.year, now.month, 1);
+        final end = now.month == 12
+            ? DateTime(now.year + 1, 1, 1)
+            : DateTime(now.year, now.month + 1, 1);
+        return (start: start, end: end);
+      case RankingPeriod.all:
+        return (start: null, end: null);
+    }
+  }
 
   /// 아이디 중복 검사·저장 시 사용하는 정규화 (공백 trim, 소문자, 문서 ID용 문자만)
   static String _normalize(String name) {
@@ -27,9 +51,11 @@ class UserProfileRepository {
       displayName: d['displayName'] as String?,
       religionId: d['religionId'] as String?,
       countryId: d['countryId'] as String?,
+      role: d['role'] as String?,
       points: (d['points'] as num?)?.toInt() ?? 0,
       profileLocked: d['profileLocked'] as bool? ?? false,
       adWatchCount: (d['adWatchCount'] as num?)?.toInt() ?? 0,
+      languageCode: d['languageCode'] as String?,
     );
   }
 
@@ -43,11 +69,33 @@ class UserProfileRepository {
         displayName: d['displayName'] as String?,
         religionId: d['religionId'] as String?,
         countryId: d['countryId'] as String?,
+        role: d['role'] as String?,
         points: (d['points'] as num?)?.toInt() ?? 0,
         profileLocked: d['profileLocked'] as bool? ?? false,
         adWatchCount: (d['adWatchCount'] as num?)?.toInt() ?? 0,
+        languageCode: d['languageCode'] as String?,
       );
     });
+  }
+
+  /// 언어 코드 업데이트 (ProfileLocked와 무관하게 항상 허용)
+  static Future<void> updateLanguageCode(String uid, String code) async {
+    await _store.collection(_users).doc(uid).set({
+      'languageCode': code,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  /// 관리자 권한 부여(테스트/운영자 전환용)
+  static Future<void> grantAdminRole({
+    required String uid,
+    String? email,
+  }) async {
+    await _store.collection(_users).doc(uid).set({
+      'role': 'admin',
+      'updatedAt': FieldValue.serverTimestamp(),
+      if (email != null && email.isNotEmpty) 'adminEmail': email,
+    }, SetOptions(merge: true));
   }
 
   /// 아이디 중복 검사만 (저장하지 않음)
@@ -164,6 +212,16 @@ class UserProfileRepository {
       final ctyRef = _store.collection(_aggregates).doc(_countryPoints);
       batch.set(ctyRef, {countryId: FieldValue.increment(amount)}, SetOptions(merge: true));
     }
+    final eventRef = _store.collection(_pointEvents).doc();
+    batch.set(eventRef, {
+      'uid': uid,
+      'type': 'payment',
+      'points': amount,
+      'amountUsd': amount,
+      'religionId': religionId,
+      'countryId': countryId,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
 
     await batch.commit();
   }
@@ -199,6 +257,16 @@ class UserProfileRepository {
       final ctyRef = _store.collection(_aggregates).doc(_countryPoints);
       batch.set(ctyRef, {countryId: FieldValue.increment(pointsToAdd)}, SetOptions(merge: true));
     }
+    final eventRef = _store.collection(_pointEvents).doc();
+    batch.set(eventRef, {
+      'uid': uid,
+      'type': 'adWatch',
+      'points': pointsToAdd,
+      'amountUsd': 0,
+      'religionId': religionId,
+      'countryId': countryId,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
 
     await batch.commit();
   }
@@ -241,6 +309,120 @@ class UserProfileRepository {
   static Future<Map<String, int>> getCountryRankingPoints() async {
     final docs = await _allUserDocs();
     return _aggregateByField(docs, 'countryId');
+  }
+
+  static Query<Map<String, dynamic>> _periodEventQuery(RankingPeriod period) {
+    final range = _rangeForPeriod(period);
+    Query<Map<String, dynamic>> query = _store.collection(_pointEvents);
+    if (range.start != null && range.end != null) {
+      query = query
+          .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(range.start!.toUtc()))
+          .where('createdAt', isLessThan: Timestamp.fromDate(range.end!.toUtc()));
+    }
+    return query;
+  }
+
+  static Future<QuerySnapshot<Map<String, dynamic>>> _periodEventSnapshot(RankingPeriod period) {
+    return _periodEventQuery(period).get();
+  }
+
+  /// 종교별 기간 포인트 실시간 스트림
+  static Stream<Map<String, int>> religionPointsStreamByPeriod({required RankingPeriod period}) {
+    if (period == RankingPeriod.all) return religionPointsStream();
+    return _periodEventQuery(period).snapshots().map((snap) {
+      final totals = <String, int>{};
+      for (final doc in snap.docs) {
+        final d = doc.data();
+        final id = d['religionId'] as String?;
+        final pts = (d['points'] as num?)?.toInt() ?? 0;
+        if (id == null || id.isEmpty || pts <= 0) continue;
+        totals[id] = (totals[id] ?? 0) + pts;
+      }
+      return totals;
+    });
+  }
+
+  /// 국가별 기간 포인트 실시간 스트림
+  static Stream<Map<String, int>> countryPointsStreamByPeriod({required RankingPeriod period}) {
+    if (period == RankingPeriod.all) return countryPointsStream();
+    return _periodEventQuery(period).snapshots().map((snap) {
+      final totals = <String, int>{};
+      for (final doc in snap.docs) {
+        final d = doc.data();
+        final id = d['countryId'] as String?;
+        final pts = (d['points'] as num?)?.toInt() ?? 0;
+        if (id == null || id.isEmpty || pts <= 0) continue;
+        totals[id] = (totals[id] ?? 0) + pts;
+      }
+      return totals;
+    });
+  }
+
+  static Future<List<UserProfile>> getAccountRankingByPeriod({
+    required RankingPeriod period,
+    int limit = 10,
+  }) async {
+    if (period == RankingPeriod.all) {
+      return getAccountRanking(limit: limit);
+    }
+    final snap = await _periodEventSnapshot(period);
+    final totals = <String, int>{};
+    for (final doc in snap.docs) {
+      final d = doc.data();
+      final uid = d['uid'] as String?;
+      final pts = (d['points'] as num?)?.toInt() ?? 0;
+      if (uid == null || uid.isEmpty || pts <= 0) continue;
+      totals[uid] = (totals[uid] ?? 0) + pts;
+    }
+    final list = <UserProfile>[];
+    for (final entry in totals.entries) {
+      final userDoc = await _store.collection(_users).doc(entry.key).get();
+      final d = userDoc.data() ?? {};
+      final dn = d['displayName'] as String?;
+      if (dn == null || dn.trim().isEmpty) continue;
+      list.add(UserProfile(
+        uid: entry.key,
+        displayName: dn,
+        religionId: d['religionId'] as String?,
+        countryId: d['countryId'] as String?,
+        role: d['role'] as String?,
+        points: entry.value,
+      ));
+    }
+    list.sort((a, b) => b.points.compareTo(a.points));
+    return list.take(limit).toList();
+  }
+
+  static Future<Map<String, int>> getReligionRankingPointsByPeriod({
+    required RankingPeriod period,
+  }) async {
+    if (period == RankingPeriod.all) return getReligionRankingPoints();
+    final snap = await _periodEventSnapshot(period);
+    final totals = <String, int>{};
+    for (final doc in snap.docs) {
+      final d = doc.data();
+      final id = d['religionId'] as String?;
+      final pts = (d['points'] as num?)?.toInt() ?? 0;
+      if (id == null || id.isEmpty || pts <= 0) continue;
+      totals[id] = (totals[id] ?? 0) + pts;
+    }
+    return totals;
+  }
+
+  static Future<Map<String, int>> getCountryRankingPointsByPeriod({
+    required RankingPeriod period,
+  }) async {
+    if (period == RankingPeriod.all) return getCountryRankingPoints();
+    final snap = await _periodEventSnapshot(period);
+    final totals = <String, int>{};
+    for (final doc in snap.docs) {
+      final d = doc.data();
+      final id = d['countryId'] as String?;
+      final pts = (d['points'] as num?)?.toInt() ?? 0;
+      if (id == null || id.isEmpty || pts <= 0) continue;
+      totals[id] = (totals[id] ?? 0) + pts;
+    }
+    return totals;
   }
 
   // ── 실시간 스트림 (Firestore snapshots 사용) ──────────────────────────
@@ -305,18 +487,22 @@ class UserProfile {
   final String? displayName;
   final String? religionId;
   final String? countryId;
+  final String? role;
   final int points;
   final bool profileLocked;
   final int adWatchCount;
+  final String? languageCode;
 
   UserProfile({
     required this.uid,
     this.displayName,
     this.religionId,
     this.countryId,
+    this.role,
     this.points = 0,
     this.profileLocked = false,
     this.adWatchCount = 0,
+    this.languageCode,
   });
 }
 

@@ -1,43 +1,74 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
 
     // 사용자 프로필: 비로그인 포함 모두 읽기 (메인 랭킹·응원포인트 표시용), 쓰기는 본인만
     match /users/{userId} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
     }
 
     // 아이디 중복 검사용: 읽기는 누구나 가능 (중복 여부는 비민감 정보),
     // 쓰기·삭제는 로그인 필요
     match /displayNames/{normalizedName} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn()
         && resource.data.uid == request.auth.uid;
     }
 
     // 집계(총포인트, 종교별·국가별): 비로그인 포함 모두 읽기 (랭킹 표시), 쓰기는 로그인만
     match /aggregates/{docId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isSignedIn();
+    }
+
+    // 포인트 이벤트 로그: 기간별 랭킹/정산용 원장 데이터
+    match /pointEvents/{eventId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // 천국 영토 구매: 로그인 없이도 구매 가능, 본인 주문만 읽기
+    match /heavenOrders/{orderId} {
+      allow create: if true;
+      allow read: if isSignedIn()
+        && resource.data.uid == request.auth.uid;
     }
 
     // 게시판: 비로그인도 읽기 가능, 쓰기·삭제는 로그인 필요
     match /posts/{postId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      allow delete: if request.auth != null
-        && resource.data.authorUid == request.auth.uid;
-      allow update: if request.auth != null
+      allow create: if (isSignedIn() && isAdmin())
+        || (isSignedIn()
+        && request.resource.data.authorUid == request.auth.uid
+        // 가입 시 선택한 종교 게시판에서만 작성 가능
+        && request.resource.data.religion
+            == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.religionId
+        && request.resource.data.category in ['board', 'news']);
+      allow delete: if (isSignedIn() && resource.data.authorUid == request.auth.uid)
+        || (isSignedIn() && isAdmin());
+      allow update: if (isSignedIn() && isAdmin())
+        || (isSignedIn()
         && request.resource.data.diff(resource.data).affectedKeys()
-            .hasOnly(['commentCount']);
+            .hasOnly(['commentCount']));
 
       match /comments/{commentId} {
         allow read: if true;
-        allow create: if request.auth != null;
-        allow delete: if request.auth != null
-          && resource.data.authorUid == request.auth.uid;
+        allow create: if isSignedIn();
+        allow delete: if (isSignedIn() && resource.data.authorUid == request.auth.uid)
+          || (isSignedIn() && isAdmin());
       }
     }
   }

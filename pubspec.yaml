@@ -1,5 +1,5 @@
 name: kindly_god
-description: "A new Flutter project."
+description: "Kindly-God - 종교/국가별 응원 포인트 커뮤니티 (웹/PWA)"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.6+6
 
 environment:
   sdk: ^3.7.2
@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   cupertino_icons: ^1.0.8
   go_router: ^14.6.2
   google_fonts: ^6.2.1
@@ -38,11 +41,13 @@ dependencies:
   firebase_auth: ^5.3.3
   cloud_firestore: ^5.4.4
   google_sign_in: ^6.2.2
+  shared_preferences: ^2.3.5
   # sign_in_with_apple: ^6.1.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -56,6 +61,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -91,3 +97,14 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# 웹 PWA·파비콘·애플 터치 아이콘 생성 (assets/images/appicon.png 기준)
+flutter_launcher_icons:
+  image_path: assets/images/appicon.png
+  android: false
+  ios: false
+  web:
+    generate: true
+    image_path: assets/images/appicon.png
+    background_color: "#1a1a2e"
+    theme_color: "#1B5E20"

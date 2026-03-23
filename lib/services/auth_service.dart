@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../auth/admin/admin_auth_service.dart';
 import '../auth/google/google_login_service.dart';
 
 /// 앱 전역 인증 서비스 (Firebase Auth + 구글 로그인 연동)
@@ -15,6 +16,15 @@ class AuthService {
   /// Google로 로그인 (웹: signInWithPopup, 모바일: google_sign_in + credential)
   static Future<AuthResult> signInWithGoogle() async {
     final result = await GoogleLoginService.signIn();
+    return AuthResult(
+      success: result.success,
+      message: result.message,
+    );
+  }
+
+  /// Admin 계정으로 로그인 (익명 계정 + role=admin 부여)
+  static Future<AuthResult> signInAsAdmin() async {
+    final result = await AdminAuthService.signInAsAdmin();
     return AuthResult(
       success: result.success,
       message: result.message,

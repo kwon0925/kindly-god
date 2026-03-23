@@ -7,8 +7,6 @@ import '../models/ranking.dart';
 import '../models/religion.dart';
 import '../models/country.dart';
 import '../repository/user_profile_repository.dart';
-import '../state/test_point_provider.dart';
-import '../state/test_point_state.dart';
 import '../state/user_profile_provider.dart';
 import 'responsive_layout.dart';
 import 'religion_card.dart';
@@ -66,10 +64,9 @@ class _HomeRankingSectionState extends ConsumerState<HomeRankingSection> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(testPointProvider);
-    final accountAsync = ref.watch(accountRankingFromServerProvider);
-    final religionAsync = ref.watch(religionPointsFromServerProvider);
-    final countryAsync = ref.watch(countryPointsFromServerProvider);
+    final accountAsync = ref.watch(accountRankingByPeriodProvider(_period));
+    final religionAsync = ref.watch(religionPointsByPeriodProvider(_period));
+    final countryAsync = ref.watch(countryPointsByPeriodProvider(_period));
 
     return Card(
       child: Padding(
@@ -95,7 +92,6 @@ class _HomeRankingSectionState extends ConsumerState<HomeRankingSection> {
             _ContentArea(
               period: _period,
               type: _type,
-              notifier: ref.read(testPointProvider),
               accountAsync: accountAsync,
               religionAsync: religionAsync,
               countryAsync: countryAsync,
@@ -162,7 +158,6 @@ class _TypeChips extends StatelessWidget {
 class _ContentArea extends StatelessWidget {
   final RankingPeriod period;
   final RankingType type;
-  final TestPointNotifier notifier;
   final AsyncValue<List<UserProfile>> accountAsync;
   final AsyncValue<Map<String, int>> religionAsync;
   final AsyncValue<Map<String, int>> countryAsync;
@@ -170,7 +165,6 @@ class _ContentArea extends StatelessWidget {
   const _ContentArea({
     required this.period,
     required this.type,
-    required this.notifier,
     required this.accountAsync,
     required this.religionAsync,
     required this.countryAsync,
@@ -182,19 +176,16 @@ class _ContentArea extends StatelessWidget {
       case RankingType.religion:
         return _ReligionGrid(
           period: period,
-          notifier: notifier,
           religionAsync: religionAsync,
         );
       case RankingType.account:
         return _AccountList(
           period: period,
-          notifier: notifier,
           accountAsync: accountAsync,
         );
       case RankingType.country:
         return _CountryGrid(
           period: period,
-          notifier: notifier,
           countryAsync: countryAsync,
         );
     }
@@ -203,28 +194,24 @@ class _ContentArea extends StatelessWidget {
 
 class _ReligionGrid extends StatelessWidget {
   final RankingPeriod period;
-  final TestPointNotifier notifier;
   final AsyncValue<Map<String, int>> religionAsync;
 
   const _ReligionGrid({
     required this.period,
-    required this.notifier,
     required this.religionAsync,
   });
 
   @override
   Widget build(BuildContext context) {
     final serverMap = religionAsync.valueOrNull ?? {};
-    final localState = notifier.state;
     final items = defaultReligions
         .map((r) {
-          final localPts = localState.getReligionPoints(r.id);
           final serverPts = serverMap[r.id] ?? 0;
           return Religion(
             id: r.id,
             name: r.name,
             nameEn: r.nameEn,
-            points: localPts + serverPts,
+            points: serverPts,
           );
         })
         .toList();
@@ -301,12 +288,10 @@ class _AccountRankItem {
 
 class _AccountList extends StatelessWidget {
   final RankingPeriod period;
-  final TestPointNotifier notifier;
   final AsyncValue<List<UserProfile>> accountAsync;
 
   const _AccountList({
     required this.period,
-    required this.notifier,
     required this.accountAsync,
   });
 
@@ -331,7 +316,6 @@ class _AccountList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final serverList = accountAsync.valueOrNull ?? <UserProfile>[];
-    final localList = notifier.getAccountRanking();
     final combined = <_AccountRankItem>[
       ...serverList.map((p) => _AccountRankItem(
             id: p.uid,
@@ -340,7 +324,6 @@ class _AccountList extends StatelessWidget {
             religionId: p.religionId,
             countryId: p.countryId,
           )),
-      ...localList.map((e) => _AccountRankItem(id: e.id, name: e.name, points: e.points)),
     ]..sort((a, b) => b.points.compareTo(a.points));
     final displayed = combined.take(10).toList();
 
@@ -397,28 +380,24 @@ class _AccountList extends StatelessWidget {
 
 class _CountryGrid extends StatelessWidget {
   final RankingPeriod period;
-  final TestPointNotifier notifier;
   final AsyncValue<Map<String, int>> countryAsync;
 
   const _CountryGrid({
     required this.period,
-    required this.notifier,
     required this.countryAsync,
   });
 
   @override
   Widget build(BuildContext context) {
     final serverMap = countryAsync.valueOrNull ?? {};
-    final localState = notifier.state;
     final items = defaultCountries
         .map((c) {
-          final localPts = localState.getCountryPoints(c.id);
           final serverPts = serverMap[c.id] ?? 0;
           return Country(
             id: c.id,
             name: c.name,
             nameEn: c.nameEn,
-            points: localPts + serverPts,
+            points: serverPts,
           );
         })
         .toList();

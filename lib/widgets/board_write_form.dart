@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../auth/admin/admin_role.dart';
 import '../repository/board_repository.dart';
 import '../repository/user_profile_repository.dart';
 import '../services/auth_service.dart';
+import '../models/community_post.dart';
 import 'board_button_style.dart';
 
-/// 게시글 작성 폼 위젯 — 로직과 UI를 담당
-/// board_write_screen.dart 에서 사용
+/// 게시글 작성 폼 — 상단에서 카테고리(활동소식/게시판) 선택 가능
 class BoardWriteForm extends ConsumerStatefulWidget {
-  const BoardWriteForm({super.key});
+  const BoardWriteForm({
+    super.key,
+    this.initialReligion,
+    this.initialCategory,
+  });
+
+  final String? initialReligion;
+  final String? initialCategory;
 
   @override
   ConsumerState<BoardWriteForm> createState() => _BoardWriteFormState();
@@ -20,6 +28,15 @@ class _BoardWriteFormState extends ConsumerState<BoardWriteForm> {
   final _bodyController = TextEditingController();
   bool _isAnonymous = false;
   bool _submitting = false;
+  late String _selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedCategory = widget.initialCategory == PostCategory.news
+        ? PostCategory.news
+        : PostCategory.board;
+  }
 
   @override
   void dispose() {
@@ -27,6 +44,8 @@ class _BoardWriteFormState extends ConsumerState<BoardWriteForm> {
     _bodyController.dispose();
     super.dispose();
   }
+
+  bool get _isBoard => _selectedCategory == PostCategory.board;
 
   Future<void> _submit() async {
     final user = AuthService.currentUser;
@@ -46,6 +65,20 @@ class _BoardWriteFormState extends ConsumerState<BoardWriteForm> {
     setState(() => _submitting = true);
     try {
       final profile = await UserProfileRepository.getProfile(user.uid);
+      final isAdmin = AdminRole.isAdmin(profile?.role) || user.isAnonymous;
+      final userReligion = profile?.religionId;
+      if (!isAdmin && (userReligion == null || userReligion.isEmpty)) {
+        _showSnack('종교를 먼저 선택해야 글을 작성할 수 있습니다.');
+        return;
+      }
+      if (!isAdmin &&
+          widget.initialReligion != null &&
+          widget.initialReligion!.isNotEmpty &&
+          widget.initialReligion != userReligion) {
+        _showSnack('선택한 종교 게시판에서만 글을 작성할 수 있습니다.');
+        return;
+      }
+
       final displayName = (profile?.displayName?.isNotEmpty == true)
           ? profile!.displayName!
           : (user.email?.split('@').first ?? '사용자');
@@ -55,7 +88,11 @@ class _BoardWriteFormState extends ConsumerState<BoardWriteForm> {
         body: _bodyController.text,
         authorUid: user.uid,
         authorDisplayName: displayName,
-        isAnonymous: _isAnonymous,
+        isAnonymous: _isBoard ? _isAnonymous : false,
+        religion: isAdmin
+            ? (widget.initialReligion != null && widget.initialReligion!.isNotEmpty ? widget.initialReligion! : 'all')
+            : userReligion!,
+        category: _selectedCategory,
       );
 
       if (mounted) {
@@ -70,43 +107,68 @@ class _BoardWriteFormState extends ConsumerState<BoardWriteForm> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
   Widget build(BuildContext context) {
     final user = AuthService.currentUser;
-
     if (user == null) {
       return const Center(
         child: Text('로그인 후 게시글을 작성할 수 있습니다.'),
       );
     }
 
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       children: [
-        // ── 폼 입력 영역 (스크롤 가능) ──────────────────────────────────
+        // ── 카테고리 선택 탭 (제목 위) ─────────────────────────────────
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          child: SegmentedButton<String>(
+            segments: const [
+              ButtonSegment(
+                value: PostCategory.board,
+                icon: Icon(Icons.forum_outlined),
+                label: Text('게시판'),
+              ),
+              ButtonSegment(
+                value: PostCategory.news,
+                icon: Icon(Icons.campaign_outlined),
+                label: Text('활동 소식'),
+              ),
+            ],
+            selected: {_selectedCategory},
+            onSelectionChanged: (v) =>
+                setState(() => _selectedCategory = v.first),
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+        ),
+
+        // ── 폼 입력 영역 ────────────────────────────────────────────────
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 작성자 칩
                 _AuthorChip(isAnonymous: _isAnonymous),
-                // 익명 체크박스
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _isAnonymous,
-                      onChanged: (v) =>
-                          setState(() => _isAnonymous = v ?? false),
-                    ),
-                    const Text('익명으로 게시'),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // 제목 입력
+                if (_isBoard)
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _isAnonymous,
+                        onChanged: (v) =>
+                            setState(() => _isAnonymous = v ?? false),
+                      ),
+                      const Text('익명으로 게시'),
+                    ],
+                  ),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _titleController,
                   maxLength: 100,
@@ -118,7 +180,6 @@ class _BoardWriteFormState extends ConsumerState<BoardWriteForm> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // 본문 입력
                 TextField(
                   controller: _bodyController,
                   maxLines: 14,

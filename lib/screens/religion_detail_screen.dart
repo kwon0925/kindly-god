@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../auth/admin/admin_role.dart';
 import '../config/routes.dart';
+import '../models/community_post.dart';
 import '../models/religion.dart';
+import '../services/auth_service.dart';
 import '../state/test_point_provider.dart';
+import '../state/user_profile_provider.dart';
+import '../widgets/post_list_widget.dart';
 
 class ReligionDetailScreen extends ConsumerWidget {
   final String religionId;
@@ -21,10 +26,38 @@ class ReligionDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final r = _religion;
     final points = ref.watch(testPointProvider).state.getReligionPoints(r.id);
+    final profileAsync = ref.watch(currentUserProfileProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(r.name),
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
+      ),
+      floatingActionButton: profileAsync.when(
+        loading: () => null,
+        error: (_, __) => null,
+        data: (profile) {
+          final user = AuthService.currentUser;
+          final isAdmin = AdminRole.isAdmin(profile?.role) || (user?.isAnonymous ?? false);
+          if (isAdmin) {
+            return FloatingActionButton.extended(
+              onPressed: () => context.push(
+                '${AppRoutes.boardWrite}?religion=$religionId',
+              ),
+              icon: const Icon(Icons.edit),
+              label: const Text('글쓰기'),
+            );
+          }
+          final userReligion = profile?.religionId;
+          if (userReligion == null || userReligion.isEmpty) return null;
+          if (userReligion != religionId) return null;
+          return FloatingActionButton.extended(
+            onPressed: () => context.push(
+              '${AppRoutes.boardWrite}?religion=$religionId',
+            ),
+            icon: const Icon(Icons.edit),
+            label: const Text('글쓰기'),
+          );
+        },
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -55,18 +88,27 @@ class ReligionDetailScreen extends ConsumerWidget {
                   label: const Text('이 종교 응원하기'),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 28),
               Text('활동 소식', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
-              Text(
-                '응원 포인트로 진행된 활동 소식을 게시판에서 확인할 수 있습니다.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade700),
+              PostListWidget(
+                religion: religionId,
+                category: PostCategory.news,
+                limit: 10,
+                scrollable: false,
+                emptyMessage: '이 종교의 활동 소식이 없습니다.',
               ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () => context.push(AppRoutes.board),
-                child: const Text('활동 소식 보기'),
+              const SizedBox(height: 20),
+              Text('게시판', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              PostListWidget(
+                religion: religionId,
+                category: PostCategory.board,
+                limit: 10,
+                scrollable: false,
+                emptyMessage: '이 종교 게시판에 글이 없습니다.',
               ),
+              const SizedBox(height: 24),
             ],
           ),
         ),

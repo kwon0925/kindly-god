@@ -22,6 +22,7 @@ class LoginOnlyDialog extends StatefulWidget {
 
 class _LoginOnlyDialogState extends State<LoginOnlyDialog> {
   bool _loading = false;
+  bool _adminLoading = false;
   String? _error;
 
   Future<void> _signInWithGoogle() async {
@@ -32,6 +33,22 @@ class _LoginOnlyDialogState extends State<LoginOnlyDialog> {
     final result = await AuthService.signInWithGoogle();
     if (!mounted) return;
     setState(() => _loading = false);
+    if (result.success) {
+      Navigator.of(context).pop();
+      if (context.mounted) AccountDialog.show(context);
+    } else {
+      setState(() => _error = result.message);
+    }
+  }
+
+  Future<void> _signInAsAdmin() async {
+    setState(() {
+      _adminLoading = true;
+      _error = null;
+    });
+    final result = await AuthService.signInAsAdmin();
+    if (!mounted) return;
+    setState(() => _adminLoading = false);
     if (result.success) {
       Navigator.of(context).pop();
       if (context.mounted) AccountDialog.show(context);
@@ -61,6 +78,14 @@ class _LoginOnlyDialogState extends State<LoginOnlyDialog> {
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.g_mobiledata, size: 22),
             label: Text(_loading ? AccountDialogStrings.googleLoginLoading : AccountDialogStrings.googleLoginButton),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _adminLoading ? null : _signInAsAdmin,
+            icon: _adminLoading
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.admin_panel_settings_outlined),
+            label: Text(_adminLoading ? '어드민 접속 중...' : '어드민 접속'),
           ),
         ],
       ),

@@ -13,6 +13,7 @@ import '../screens/support_screen.dart';
 import '../screens/terms_screen.dart';
 import '../screens/all_religions_screen.dart';
 import '../screens/board_write_screen.dart';
+import '../screens/heaven_purchase_screen.dart';
 
 class AppRoutes {
   static const splash = '/';
@@ -28,6 +29,7 @@ class AppRoutes {
   static const boardWrite = '/board-write';
   static const support = '/support';
   static const terms = '/terms';
+  static const heavenPurchase = '/heaven-purchase';
 
   static String religionDetailPath(String id) => '/religion/$id';
   static String boardDetailPath(String id) => '/board/$id';
@@ -65,8 +67,18 @@ final GoRouter appRouter = GoRouter(
         return BoardGeneralDetailScreen(postId: id);
       },
     ),
-    GoRoute(path: AppRoutes.boardWrite, builder: (_, __) => const BoardWriteScreen()),
+    GoRoute(
+      path: AppRoutes.boardWrite,
+      builder: (context, state) {
+        final qp = state.uri.queryParameters;
+        return BoardWriteScreen(
+          initialReligion: qp['religion'],
+          initialCategory: qp['category'],
+        );
+      },
+    ),
     GoRoute(path: AppRoutes.support, builder: (_, __) => const SupportScreen()),
     GoRoute(path: AppRoutes.terms, builder: (_, __) => const TermsScreen()),
+    GoRoute(path: AppRoutes.heavenPurchase, builder: (_, __) => const HeavenPurchaseScreen()),
   ],
 );

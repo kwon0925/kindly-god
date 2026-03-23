@@ -1,0 +1,8 @@
+flutter clean
+flutter pub get
+flutter build web --release
+git status
+git add -f build/web
+git add package.json package-lock.json
+git commit -m "chore(web): build with installable PWA"
+git push origin main

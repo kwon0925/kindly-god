@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../models/ranking.dart';
 import '../repository/user_profile_repository.dart';
 import '../services/auth_service.dart';
 import '../state/test_point_provider.dart';
@@ -144,6 +145,10 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
         return;
       }
       await UserProfileRepository.addAdWatchPoints(user.uid);
+      // 기간별 계정 랭킹 캐시 즉시 무효화
+      for (final period in RankingPeriod.values) {
+        ref.invalidate(accountRankingByPeriodProvider(period));
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('1 P 적립됨 (10회마다 10 P 추가)')),
@@ -192,6 +197,10 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
         return;
       }
       await UserProfileRepository.addPoints(user.uid, amount);
+      // 기간별 계정 랭킹 캐시 즉시 무효화
+      for (final period in RankingPeriod.values) {
+        ref.invalidate(accountRankingByPeriodProvider(period));
+      }
       if (mounted) {
         setState(() => _selectedAmount = null);
         ScaffoldMessenger.of(context).showSnackBar(
