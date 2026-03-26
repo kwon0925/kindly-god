@@ -209,4 +209,202 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get back => 'Volver';
+
+  @override
+  String get religionSupportPointsTitle => 'Puntos de apoyo por religión';
+
+  @override
+  String get religionType => 'Religión';
+
+  @override
+  String get accountType => 'Cuenta';
+
+  @override
+  String get countryType => 'País';
+
+  @override
+  String get supportPointHint => 'Acumula puntos en Apoyar';
+
+  @override
+  String seeAllReligions(int count) {
+    return 'Ver todo ($count religiones)';
+  }
+
+  @override
+  String totalCountries(int count) {
+    return 'Total $count países';
+  }
+
+  @override
+  String get heavenCertificateTitle => '🌟 Certificado de Territorio Celestial';
+
+  @override
+  String get heavenSubtitle => 'Posee tu propio lugar de descanso eterno';
+
+  @override
+  String get buyLand => 'Comprar terreno';
+
+  @override
+  String get translateGuideTooltip => 'Guía de traducción de página';
+
+  @override
+  String get pageTranslateTitle => 'Traducción de página';
+
+  @override
+  String get pageTranslateBody => 'Esta página está en coreano.\n\nPara traducir:\n• Chrome/Edge: pulsa el icono de traducción en la barra de direcciones\n• o haz clic derecho y selecciona \"Translate to...\"';
+
+  @override
+  String get homeTab => 'Inicio';
+
+  @override
+  String get supportTab => 'Apoyar';
+
+  @override
+  String get activityNewsTab => 'Noticias';
+
+  @override
+  String rankLabel(int rank) {
+    return '#$rank';
+  }
+
+  @override
+  String get activityNewsTitle => 'Noticias de actividad';
+
+  @override
+  String get seeAll => 'Ver todo';
+
+  @override
+  String get noActivityYet => 'Aún no hay noticias de actividad.';
+
+  @override
+  String get boardTitle => 'Foro';
+
+  @override
+  String get noPostsYet => 'Aún no hay publicaciones.';
+
+  @override
+  String get noPostsWriteFirst => 'Aún no hay publicaciones.\n¡Escribe la primera!';
+
+  @override
+  String get supportThisReligion => 'Apoyar esta religión';
+
+  @override
+  String get noReligionActivity => 'No hay noticias para esta religión.';
+
+  @override
+  String get noReligionBoardPosts => 'No hay publicaciones del foro para esta religión.';
+
+  @override
+  String get cannotLoadList => 'No se puede cargar la lista.';
+
+  @override
+  String commentCount(int count) {
+    return 'Comentarios $count';
+  }
+
+  @override
+  String get heavenPurchaseTitle => 'Compra de Territorio Celestial';
+
+  @override
+  String get basicInfo => 'Información básica';
+
+  @override
+  String get nameLabel => 'Nombre';
+
+  @override
+  String get nameHint => 'Ingrese el nombre del propietario';
+
+  @override
+  String get enterName => 'Ingrese su nombre.';
+
+  @override
+  String get selectReligion => 'Seleccionar religión';
+
+  @override
+  String get styleSettings => 'Configuración de estilo';
+
+  @override
+  String get baseWorld => 'Mundo base y religión';
+
+  @override
+  String get locationLabel => 'Ubicación y terreno';
+
+  @override
+  String get vibeLabel => 'Ambiente y elementos';
+
+  @override
+  String get visualLabel => 'Efectos visuales/sensoriales';
+
+  @override
+  String get specialPerksLabel => 'Servicios especiales';
+
+  @override
+  String get shippingInfo => 'Información de envío';
+
+  @override
+  String get countryHint => 'Ej: Corea del Sur';
+
+  @override
+  String get enterCountry => 'Ingrese el país.';
+
+  @override
+  String get addressLabel => 'Dirección';
+
+  @override
+  String get addressHint => 'Dirección detallada para recibir el certificado';
+
+  @override
+  String get enterAddress => 'Ingrese la dirección.';
+
+  @override
+  String get contactLabel => 'Contacto';
+
+  @override
+  String get contactHint => 'Teléfono o correo';
+
+  @override
+  String get enterContact => 'Ingrese el contacto.';
+
+  @override
+  String get selectAllRequired => 'Seleccione todos los campos requeridos.';
+
+  @override
+  String get registerFailed => 'Error de registro';
+
+  @override
+  String get heavenDonationNoticeShort => 'La tarifa del terreno comprado en esta vida\nse usa para ayudar a vecinos necesitados.';
+
+  @override
+  String get processing => 'Procesando...';
+
+  @override
+  String get buyHeavenLand => 'Comprar territorio celestial';
+
+  @override
+  String get pleaseSelect => 'Seleccione.';
+
+  @override
+  String congratsOwner(String name) {
+    return '🎉 $name,\n¡tu terreno fue comprado!';
+  }
+
+  @override
+  String heavenCertificateArrival(String afterlife) {
+    return 'En unas 3-4 semanas,\nel certificado de tierra de $afterlife llegará a tu dirección.';
+  }
+
+  @override
+  String get purchaseDetails => 'Detalles de compra';
+
+  @override
+  String get ownerLabel => 'Propietario';
+
+  @override
+  String get shippingCountry => 'País de envío';
+
+  @override
+  String get heavenDonationNoticeLong => 'La tarifa del terreno comprado en esta vida\nse usa para ayudar a vecinos necesitados.\nTu buena acción quedará registrada eternamente en el cielo.';
+
+  @override
+  String get goHome => 'Ir al inicio';
 }

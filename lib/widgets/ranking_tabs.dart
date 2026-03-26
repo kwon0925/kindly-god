@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/ranking.dart';
 import '../models/religion.dart';
@@ -18,8 +19,31 @@ class _RankingTabsState extends ConsumerState<RankingTabs> {
   RankingPeriod _period = RankingPeriod.today;
   RankingType _type = RankingType.religion;
 
-  static const periodLabels = rankingPeriodLabels;
-  static const typeLabels = rankingTypeLabels;
+  String _periodLabel(BuildContext context, RankingPeriod p) {
+    final l10n = AppLocalizations.of(context);
+    switch (p) {
+      case RankingPeriod.today:
+        return l10n.today;
+      case RankingPeriod.week:
+        return l10n.thisWeek;
+      case RankingPeriod.month:
+        return l10n.thisMonth;
+      case RankingPeriod.all:
+        return l10n.allTime;
+    }
+  }
+
+  String _typeLabel(BuildContext context, RankingType t) {
+    final l10n = AppLocalizations.of(context);
+    switch (t) {
+      case RankingType.religion:
+        return l10n.religionType;
+      case RankingType.account:
+        return l10n.accountType;
+      case RankingType.country:
+        return l10n.countryType;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +77,7 @@ class _RankingTabsState extends ConsumerState<RankingTabs> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
-                      label: Text(periodLabels[p] ?? ''),
+                      label: Text(_periodLabel(context, p)),
                       selected: _period == p,
                       onSelected: (_) => setState(() => _period = p),
                     ),
@@ -69,7 +93,7 @@ class _RankingTabsState extends ConsumerState<RankingTabs> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
-                      label: Text(typeLabels[t] ?? ''),
+                      label: Text(_typeLabel(context, t)),
                       selected: _type == t,
                       onSelected: (_) => setState(() => _type = t),
                     ),
@@ -115,7 +139,7 @@ class _RankingTabsState extends ConsumerState<RankingTabs> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(
-                    '응원하기에서 포인트를 쌓아 보세요',
+                    AppLocalizations.of(context).supportPointHint,
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall

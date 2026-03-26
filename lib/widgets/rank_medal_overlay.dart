@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 
 /// 1·2·3위 순위 + 메달 뱃지. 카드/이미지 상단에 겹쳐 표시용.
 class RankMedalOverlay extends StatelessWidget {
@@ -7,7 +8,6 @@ class RankMedalOverlay extends StatelessWidget {
   const RankMedalOverlay({super.key, required this.rank});
 
   static const medals = ['🥇', '🥈', '🥉'];
-  static const labels = ['1위', '2위', '3위'];
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class RankMedalOverlay extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            labels[i],
+            AppLocalizations.of(context).rankLabel(rank),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,

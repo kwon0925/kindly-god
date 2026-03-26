@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 
 /// 번역 결과 상태
 enum TranslationStatus {
@@ -42,6 +43,9 @@ class TranslationResult {
 class TranslationService {
   TranslationService._();
   static final TranslationService instance = TranslationService._();
+  final OnDeviceTranslatorModelManager _modelManager =
+      OnDeviceTranslatorModelManager();
+  final Set<String> _ensuredModels = <String>{};
 
   /// 현재 플랫폼에서 온디바이스 번역이 가능한지 여부
   bool get isAvailable => !kIsWeb;
@@ -66,20 +70,73 @@ class TranslationService {
       );
     }
 
-    // TODO: google_mlkit_translation 연동
-    // final translator = OnDeviceTranslator(
-    //   sourceLanguage: TranslateLanguage.values.firstWhere(
-    //     (l) => l.bcpCode == sourceCode, orElse: () => TranslateLanguage.korean),
-    //   targetLanguage: TranslateLanguage.values.firstWhere(
-    //     (l) => l.bcpCode == targetCode, orElse: () => TranslateLanguage.english),
-    // );
-    // final result = await translator.translateText(text);
-    // await translator.close();
-    // return TranslationResult(status: TranslationStatus.success, translatedText: result);
+    try {
+      final sourceLang = _toTranslateLanguage(sourceCode);
+      final targetLang = _toTranslateLanguage(targetCode);
+      if (sourceLang == null || targetLang == null) {
+        return const TranslationResult(
+          status: TranslationStatus.error,
+          errorMessage: '지원하지 않는 언어입니다.',
+        );
+      }
 
-    return const TranslationResult(
-      status: TranslationStatus.error,
-      errorMessage: '번역 기능 준비 중입니다.',
-    );
+      await _ensureModel(sourceLang);
+      await _ensureModel(targetLang);
+
+      final translator = OnDeviceTranslator(
+        sourceLanguage: sourceLang,
+        targetLanguage: targetLang,
+      );
+      try {
+        final translated = await translator.translateText(text);
+        return TranslationResult(
+          status: TranslationStatus.success,
+          translatedText: translated,
+        );
+      } finally {
+        await translator.close();
+      }
+    } catch (e) {
+      return TranslationResult(
+        status: TranslationStatus.error,
+        errorMessage: '번역 실패: $e',
+      );
+    }
+  }
+
+  Future<void> _ensureModel(TranslateLanguage lang) async {
+    if (_ensuredModels.contains(lang.bcpCode)) return;
+    final downloaded = await _modelManager.isModelDownloaded(lang.bcpCode);
+    if (!downloaded) {
+      await _modelManager.downloadModel(lang.bcpCode);
+    }
+    _ensuredModels.add(lang.bcpCode);
+  }
+
+  TranslateLanguage? _toTranslateLanguage(String code) {
+    switch (code.toLowerCase()) {
+      case 'ko':
+        return TranslateLanguage.korean;
+      case 'en':
+        return TranslateLanguage.english;
+      case 'zh':
+        return TranslateLanguage.chinese;
+      case 'ja':
+        return TranslateLanguage.japanese;
+      case 'es':
+        return TranslateLanguage.spanish;
+      case 'fr':
+        return TranslateLanguage.french;
+      case 'de':
+        return TranslateLanguage.german;
+      case 'ru':
+        return TranslateLanguage.russian;
+      case 'pt':
+        return TranslateLanguage.portuguese;
+      case 'ar':
+        return TranslateLanguage.arabic;
+      default:
+        return null;
+    }
   }
 }

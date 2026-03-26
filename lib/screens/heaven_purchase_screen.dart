@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import '../data/heaven_options.dart';
+import '../models/religion.dart';
 import '../models/heaven_order.dart';
 import '../services/auth_service.dart';
 import 'heaven_complete_screen.dart';
@@ -39,10 +41,11 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
   }
 
   Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context);
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_religion == null || _baseWorld == null || _location == null ||
         _vibe == null || _visualEffect == null || _specialPerk == null) {
-      _showSnack('모든 항목을 선택해 주세요.');
+      _showSnack(l10n.selectAllRequired);
       return;
     }
 
@@ -77,7 +80,7 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
         );
       }
     } catch (e) {
-      if (mounted) _showSnack('등록 실패: $e');
+      if (mounted) _showSnack('${l10n.registerFailed}: $e');
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
@@ -90,12 +93,14 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final lang = Localizations.localeOf(context).languageCode;
     return Scaffold(
       backgroundColor: const Color(0xFF1a1a2e),
       appBar: AppBar(
         backgroundColor: const Color(0xFF0f3460),
         foregroundColor: Colors.white,
-        title: const Text('천국 영토 구매'),
+        title: Text(l10n.heavenPurchaseTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -108,36 +113,36 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _sectionHeader('👤 기본 정보'),
+              _sectionHeader('👤 ${l10n.basicInfo}'),
               const SizedBox(height: 12),
 
               _inputField(
                 controller: _nameController,
-                label: '이름 *',
-                hint: '소유자 이름을 입력하세요',
-                validator: (v) => (v?.trim().isEmpty ?? true) ? '이름을 입력해 주세요.' : null,
+                label: '${l10n.nameLabel} *',
+                hint: l10n.nameHint,
+                validator: (v) => (v?.trim().isEmpty ?? true) ? l10n.enterName : null,
               ),
               const SizedBox(height: 12),
 
               // ── 종교 선택 ──
               _dropdownField<String>(
-                label: '종교 선택 *',
+                label: '${l10n.selectReligion} *',
                 value: _religion,
-                items: HeavenOptions.religions
+                items: defaultReligions
                     .map((r) => DropdownMenuItem(
-                          value: r['id'],
-                          child: Text(r['label']!),
+                          value: r.id,
+                          child: Text(r.displayName(lang)),
                         ))
                     .toList(),
                 onChanged: (v) => setState(() => _religion = v),
               ),
               const SizedBox(height: 24),
 
-              _sectionHeader('🌍 스타일 설정'),
+              _sectionHeader('🌍 ${l10n.styleSettings}'),
               const SizedBox(height: 12),
 
               _dropdownField<String>(
-                label: '1. 세계관 및 종교 (Base World) *',
+                label: '1. ${l10n.baseWorld} *',
                 value: _baseWorld,
                 items: HeavenOptions.baseWorlds
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
@@ -147,7 +152,7 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
               const SizedBox(height: 12),
 
               _dropdownField<String>(
-                label: '2. 입지 및 지형 (Location) *',
+                label: '2. ${l10n.locationLabel} *',
                 value: _location,
                 items: HeavenOptions.locations
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
@@ -157,7 +162,7 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
               const SizedBox(height: 12),
 
               _dropdownField<String>(
-                label: '3. 분위기 및 구성 요소 (Vibe) *',
+                label: '3. ${l10n.vibeLabel} *',
                 value: _vibe,
                 items: HeavenOptions.vibes
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
@@ -167,7 +172,7 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
               const SizedBox(height: 12),
 
               _dropdownField<String>(
-                label: '4. 시각적/감각적 효과 (Visual) *',
+                label: '4. ${l10n.visualLabel} *',
                 value: _visualEffect,
                 items: HeavenOptions.visualEffects
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
@@ -177,7 +182,7 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
               const SizedBox(height: 12),
 
               _dropdownField<String>(
-                label: '5. 특별 서비스 (Special Perks) *',
+                label: '5. ${l10n.specialPerksLabel} *',
                 value: _specialPerk,
                 items: HeavenOptions.specialPerks
                     .map((s) => DropdownMenuItem(value: s, child: Text(s)))
@@ -186,29 +191,29 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
               ),
               const SizedBox(height: 24),
 
-              _sectionHeader('📮 발송 정보'),
+              _sectionHeader('📮 ${l10n.shippingInfo}'),
               const SizedBox(height: 12),
 
               _inputField(
                 controller: _countryController,
-                label: '국가 *',
-                hint: '예: 대한민국',
-                validator: (v) => (v?.trim().isEmpty ?? true) ? '국가를 입력해 주세요.' : null,
+                label: '${l10n.countryType} *',
+                hint: l10n.countryHint,
+                validator: (v) => (v?.trim().isEmpty ?? true) ? l10n.enterCountry : null,
               ),
               const SizedBox(height: 12),
               _inputField(
                 controller: _addressController,
-                label: '주소 *',
-                hint: '증명서를 받을 상세 주소',
+                label: '${l10n.addressLabel} *',
+                hint: l10n.addressHint,
                 maxLines: 2,
-                validator: (v) => (v?.trim().isEmpty ?? true) ? '주소를 입력해 주세요.' : null,
+                validator: (v) => (v?.trim().isEmpty ?? true) ? l10n.enterAddress : null,
               ),
               const SizedBox(height: 12),
               _inputField(
                 controller: _contactController,
-                label: '연락처 *',
-                hint: '전화번호 또는 이메일',
-                validator: (v) => (v?.trim().isEmpty ?? true) ? '연락처를 입력해 주세요.' : null,
+                label: '${l10n.contactLabel} *',
+                hint: l10n.contactHint,
+                validator: (v) => (v?.trim().isEmpty ?? true) ? l10n.enterContact : null,
               ),
               const SizedBox(height: 32),
 
@@ -221,7 +226,7 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
                   border: Border.all(color: Colors.indigo.shade300.withAlpha(80)),
                 ),
                 child: Text(
-                  '💛  이생에서 구매하신 토지 이용료는\n불우한 이웃을 위해 사용됩니다.',
+                  '💛  ${l10n.heavenDonationNoticeShort}',
                   style: TextStyle(
                     color: Colors.indigo.shade100,
                     fontSize: 13,
@@ -252,7 +257,7 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
                         )
                       : const Icon(Icons.star),
                   label: Text(
-                    _submitting ? '처리 중...' : '✨ 천국 영토 구매하기',
+                    _submitting ? l10n.processing : '✨ ${l10n.buyHeavenLand}',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -325,7 +330,7 @@ class _HeavenPurchaseScreenState extends State<HeavenPurchaseScreen> {
       value: value,
       items: items,
       onChanged: onChanged,
-      validator: (v) => v == null ? '선택해 주세요.' : null,
+      validator: (v) => v == null ? AppLocalizations.of(context).pleaseSelect : null,
       dropdownColor: const Color(0xFF0f3460),
       style: const TextStyle(color: Colors.white, fontSize: 14),
       isExpanded: true,

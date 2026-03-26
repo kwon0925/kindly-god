@@ -209,4 +209,202 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get back => '返回';
+
+  @override
+  String get religionSupportPointsTitle => '宗教应援积分';
+
+  @override
+  String get religionType => '宗教';
+
+  @override
+  String get accountType => '账户';
+
+  @override
+  String get countryType => '国家';
+
+  @override
+  String get supportPointHint => '在应援中积累积分';
+
+  @override
+  String seeAllReligions(int count) {
+    return '查看全部（$count个宗教）';
+  }
+
+  @override
+  String totalCountries(int count) {
+    return '共 $count 个国家';
+  }
+
+  @override
+  String get heavenCertificateTitle => '🌟 天国领土所有证书';
+
+  @override
+  String get heavenSubtitle => '拥有属于你的永恒安息之地';
+
+  @override
+  String get buyLand => '购买土地';
+
+  @override
+  String get translateGuideTooltip => '页面翻译说明';
+
+  @override
+  String get pageTranslateTitle => '页面翻译';
+
+  @override
+  String get pageTranslateBody => '此页面为韩语。\n\n翻译方法：\n• Chrome/Edge：点击地址栏右侧翻译图标\n• 或右键页面选择“Translate to...”';
+
+  @override
+  String get homeTab => '首页';
+
+  @override
+  String get supportTab => '应援';
+
+  @override
+  String get activityNewsTab => '活动消息';
+
+  @override
+  String rankLabel(int rank) {
+    return '第$rank位';
+  }
+
+  @override
+  String get activityNewsTitle => '活动消息';
+
+  @override
+  String get seeAll => '查看全部';
+
+  @override
+  String get noActivityYet => '暂无活动消息。';
+
+  @override
+  String get boardTitle => '论坛';
+
+  @override
+  String get noPostsYet => '暂无帖子。';
+
+  @override
+  String get noPostsWriteFirst => '暂无帖子。\n来写第一篇吧！';
+
+  @override
+  String get supportThisReligion => '支持该宗教';
+
+  @override
+  String get noReligionActivity => '该宗教暂无活动消息。';
+
+  @override
+  String get noReligionBoardPosts => '该宗教论坛暂无帖子。';
+
+  @override
+  String get cannotLoadList => '无法加载列表。';
+
+  @override
+  String commentCount(int count) {
+    return '评论 $count';
+  }
+
+  @override
+  String get heavenPurchaseTitle => '天堂领土购买';
+
+  @override
+  String get basicInfo => '基本信息';
+
+  @override
+  String get nameLabel => '姓名';
+
+  @override
+  String get nameHint => '请输入所有者姓名';
+
+  @override
+  String get enterName => '请输入姓名。';
+
+  @override
+  String get selectReligion => '选择宗教';
+
+  @override
+  String get styleSettings => '风格设置';
+
+  @override
+  String get baseWorld => '世界观与宗教';
+
+  @override
+  String get locationLabel => '地形与位置';
+
+  @override
+  String get vibeLabel => '氛围与构成';
+
+  @override
+  String get visualLabel => '视觉/感官效果';
+
+  @override
+  String get specialPerksLabel => '特别服务';
+
+  @override
+  String get shippingInfo => '寄送信息';
+
+  @override
+  String get countryHint => '例如：韩国';
+
+  @override
+  String get enterCountry => '请输入国家。';
+
+  @override
+  String get addressLabel => '地址';
+
+  @override
+  String get addressHint => '填写接收证书的详细地址';
+
+  @override
+  String get enterAddress => '请输入地址。';
+
+  @override
+  String get contactLabel => '联系方式';
+
+  @override
+  String get contactHint => '手机号或邮箱';
+
+  @override
+  String get enterContact => '请输入联系方式。';
+
+  @override
+  String get selectAllRequired => '请完成所有必填项目。';
+
+  @override
+  String get registerFailed => '提交失败';
+
+  @override
+  String get heavenDonationNoticeShort => '今生购买的土地使用费\n将用于帮助困难邻里。';
+
+  @override
+  String get processing => '处理中...';
+
+  @override
+  String get buyHeavenLand => '购买天堂领土';
+
+  @override
+  String get pleaseSelect => '请选择。';
+
+  @override
+  String congratsOwner(String name) {
+    return '🎉 $name，\n您的领土已购买成功！';
+  }
+
+  @override
+  String heavenCertificateArrival(String afterlife) {
+    return '约3~4周后，\n$afterlife 土地证书将寄送到您的地址。';
+  }
+
+  @override
+  String get purchaseDetails => '购买明细';
+
+  @override
+  String get ownerLabel => '所有者';
+
+  @override
+  String get shippingCountry => '寄送国家';
+
+  @override
+  String get heavenDonationNoticeLong => '今生购买的土地使用费\n将用于帮助困难邻里。\n您的善行将永远铭刻于天上。';
+
+  @override
+  String get goHome => '返回首页';
 }

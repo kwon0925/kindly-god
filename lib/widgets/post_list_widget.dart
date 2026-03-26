@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../config/routes.dart';
@@ -48,7 +49,7 @@ class PostListWidget extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            '목록을 불러올 수 없습니다.\n$e',
+            '${AppLocalizations.of(context).cannotLoadList}\n$e',
             textAlign: TextAlign.center,
             style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
@@ -60,7 +61,7 @@ class PostListWidget extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 24),
             child: Center(
               child: Text(
-                emptyMessage ?? '아직 게시글이 없습니다.',
+                emptyMessage ?? AppLocalizations.of(context).noPostsYet,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey.shade600,
                     ),
@@ -126,7 +127,7 @@ class _VerticalList extends StatelessWidget {
           trailing: post.commentCount > 0
               ? Chip(
                   label: Text(
-                    '댓글 ${post.commentCount}',
+                    AppLocalizations.of(context).commentCount(post.commentCount),
                     style: const TextStyle(fontSize: 11),
                   ),
                   padding: EdgeInsets.zero,
@@ -143,10 +144,10 @@ class _VerticalList extends StatelessWidget {
   static String _formatDate(DateTime d) {
     final now = DateTime.now();
     final diff = now.difference(d);
-    if (diff.inMinutes < 1) return '방금';
-    if (diff.inHours < 1) return '${diff.inMinutes}분 전';
-    if (diff.inDays < 1) return '${diff.inHours}시간 전';
-    if (diff.inDays < 7) return '${diff.inDays}일 전';
+    if (diff.inMinutes < 1) return 'just now';
+    if (diff.inHours < 1) return '${diff.inMinutes}m ago';
+    if (diff.inDays < 1) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${d.year}.${d.month.toString().padLeft(2, '0')}.${d.day.toString().padLeft(2, '0')}';
   }
 }

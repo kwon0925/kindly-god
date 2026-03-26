@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../config/routes.dart';
@@ -74,10 +75,7 @@ class _HomeRankingSectionState extends ConsumerState<HomeRankingSection> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '종교별 응원 포인트',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(AppLocalizations.of(context).religionSupportPointsTitle, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             _PeriodChips(
               value: _period,
@@ -118,7 +116,7 @@ class _PeriodChips extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
-              label: Text(rankingPeriodLabels[p] ?? ''),
+              label: Text(_periodLabel(context, p)),
               selected: value == p,
               onSelected: (_) => onChanged(p),
             ),
@@ -144,7 +142,7 @@ class _TypeChips extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
-              label: Text(rankingTypeLabels[t] ?? ''),
+              label: Text(_typeLabel(context, t)),
               selected: value == t,
               onSelected: (_) => onChanged(t),
             ),
@@ -152,6 +150,32 @@ class _TypeChips extends StatelessWidget {
         }).toList(),
       ),
     );
+  }
+}
+
+String _periodLabel(BuildContext context, RankingPeriod p) {
+  final l10n = AppLocalizations.of(context);
+  switch (p) {
+    case RankingPeriod.today:
+      return l10n.today;
+    case RankingPeriod.week:
+      return l10n.thisWeek;
+    case RankingPeriod.month:
+      return l10n.thisMonth;
+    case RankingPeriod.all:
+      return l10n.allTime;
+  }
+}
+
+String _typeLabel(BuildContext context, RankingType t) {
+  final l10n = AppLocalizations.of(context);
+  switch (t) {
+    case RankingType.religion:
+      return l10n.religionType;
+    case RankingType.account:
+      return l10n.accountType;
+    case RankingType.country:
+      return l10n.countryType;
   }
 }
 
@@ -257,7 +281,7 @@ class _ReligionGrid extends StatelessWidget {
                 onPressed: () => context.push(AppRoutes.religions),
                 icon: const Icon(Icons.grid_view_rounded, size: 18),
                 label: Text(
-                  '전체보기 (${sorted.length}개 종교)',
+                  AppLocalizations.of(context).seeAllReligions(sorted.length),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -295,26 +319,29 @@ class _AccountList extends StatelessWidget {
     required this.accountAsync,
   });
 
-  static String _religionName(String? id) {
+  static String _religionName(String? id, String lang) {
     if (id == null || id.isEmpty) return '';
     final r = defaultReligions.cast<Religion?>().firstWhere(
           (x) => x?.id == id,
           orElse: () => null,
         );
-    return r?.name ?? '';
+    if (r == null) return '';
+    return r.displayName(lang);
   }
 
-  static String _countryName(String? id) {
+  static String _countryName(String? id, String lang) {
     if (id == null || id.isEmpty) return '';
     final c = defaultCountries.cast<Country?>().firstWhere(
           (x) => x?.id == id,
           orElse: () => null,
         );
-    return c?.name ?? '';
+    if (c == null) return '';
+    return c.displayName(lang);
   }
 
   @override
   Widget build(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
     final serverList = accountAsync.valueOrNull ?? <UserProfile>[];
     final combined = <_AccountRankItem>[
       ...serverList.map((p) => _AccountRankItem(
@@ -331,7 +358,7 @@ class _AccountList extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Text(
-          '응원하기에서 포인트를 쌓아 보세요',
+          AppLocalizations.of(context).supportPointHint,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
         ),
       );
@@ -342,8 +369,8 @@ class _AccountList extends StatelessWidget {
       children: displayed.asMap().entries.map((e) {
         final rank = e.key + 1;
         final item = e.value;
-        final religionName = _religionName(item.religionId);
-        final countryName = _countryName(item.countryId);
+        final religionName = _religionName(item.religionId, lang);
+        final countryName = _countryName(item.countryId, lang);
         final hasSub = religionName.isNotEmpty || countryName.isNotEmpty;
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
@@ -439,7 +466,7 @@ class _CountryGrid extends StatelessWidget {
             if (hasMore) ...[
               const SizedBox(height: 8),
               Text(
-                '총 ${sorted.length}개 국가',
+                AppLocalizations.of(context).totalCountries(sorted.length),
                 style: Theme.of(context)
                     .textTheme
                     .bodySmall

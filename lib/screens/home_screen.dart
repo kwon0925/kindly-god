@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import '../config/app_brand.dart';
 import '../config/routes.dart';
@@ -11,44 +13,93 @@ import '../widgets/home_board_section.dart';
 import '../widgets/main_popup_overlay.dart';
 import '../widgets/account_dialog.dart';
 import '../widgets/login_only_dialog.dart';
+import '../widgets/notification_permission_banner.dart';
+import '../widgets/pwa_install_banner.dart';
 import '../widgets/version_badge.dart';
+import '../state/fcm_provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 void _showTranslateDialog(BuildContext context) {
+  final l10n = AppLocalizations.of(context);
   showDialog<void>(
     context: context,
     builder: (ctx) => AlertDialog(
       title: Row(
-        children: const [
-          Icon(Icons.translate, color: Colors.teal),
-          SizedBox(width: 8),
-          Text('페이지 번역'),
+        children: [
+          const Icon(Icons.translate, color: Colors.teal),
+          const SizedBox(width: 8),
+          Text(l10n.pageTranslateTitle),
         ],
       ),
-      content: const SingleChildScrollView(
+      content: SingleChildScrollView(
         child: Text(
-          '이 페이지는 한국어로 되어 있습니다.\n\n'
-          '번역하려면:\n'
-          '• Chrome/Edge: 주소창 오른쪽의 번역 아이콘을 누르거나,\n'
-          '• 페이지에서 우클릭 후 "Translate to..." 를 선택하세요.\n\n'
-          'This page is in Korean. To translate: use the translate icon in the address bar, or right‑click → Translate to your language.',
+          l10n.pageTranslateBody,
           style: TextStyle(height: 1.4),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(),
-          child: const Text('확인'),
+          child: Text(l10n.confirm),
         ),
       ],
     ),
   );
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _notificationIntroShown = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_notificationIntroShown) return;
+    _notificationIntroShown = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showNotificationIntroIfNeeded());
+  }
+
+  Future<void> _showNotificationIntroIfNeeded() async {
+    final permission = ref.read(notificationPermissionProvider);
+    if (permission == AuthorizationStatus.authorized ||
+        permission == AuthorizationStatus.provisional) {
+      return;
+    }
+
+    if (!mounted) return;
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('알림 받기'),
+        content: const Text('종교 순위 변동과 일일 요약 알림을 받으시겠어요?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('나중에'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('허용하기'),
+          ),
+        ],
+      ),
+    );
+
+    if (accepted == true) {
+      final request = ref.read(requestNotificationPermissionProvider);
+      await request();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return MainPopupOverlay(
       child: Scaffold(
       appBar: AppBar(
@@ -67,7 +118,7 @@ class HomeScreen extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.translate),
-            tooltip: '페이지 번역 안내',
+            tooltip: AppLocalizations.of(context).translateGuideTooltip,
             onPressed: () => _showTranslateDialog(context),
           ),
           IconButton(
@@ -87,6 +138,8 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 알림 권한 유도 배너 (첫 방문 + 미결정 상태일 때만 자동 표시)
+              const NotificationPermissionBanner(),
               const SizedBox(height: 16),
               const HomeRankingSection(),
               const SizedBox(height: 24),
@@ -100,18 +153,24 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '홈'),
-          BottomNavigationBarItem(icon: Icon(Icons.volunteer_activism), label: '응원하기'),
-          BottomNavigationBarItem(icon: Icon(Icons.article_outlined), label: '활동 소식'),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const PwaInstallBanner(),
+          BottomNavigationBar(
+            currentIndex: 0,
+            type: BottomNavigationBarType.fixed,
+            items: [
+              BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.homeTab),
+              BottomNavigationBarItem(icon: const Icon(Icons.volunteer_activism), label: l10n.supportTab),
+              BottomNavigationBarItem(icon: const Icon(Icons.article_outlined), label: l10n.activityNewsTab),
+            ],
+            onTap: (i) {
+              if (i == 1) context.push(AppRoutes.support);
+              if (i == 2) context.push(AppRoutes.board);
+            },
+          ),
         ],
-        onTap: (i) {
-          if (i == 1) context.push(AppRoutes.support);
-          if (i == 2) context.push(AppRoutes.board);
-        },
       ),
     ),
     );

@@ -23,6 +23,9 @@ class GoogleLoginService {
     final auth = FirebaseAuth.instance;
     try {
       if (kIsWeb) {
+        // 보안/사용성 균형: 브라우저 세션 동안만 로그인 유지.
+        // (탭/새로고침 유지, 브라우저 완전 종료 후 재실행 시 로그인 해제)
+        await auth.setPersistence(Persistence.SESSION);
         final provider = GoogleAuthProvider();
         provider.setCustomParameters({'prompt': 'select_account'});
         await auth.signInWithPopup(provider);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import '../config/routes.dart';
 
@@ -14,7 +15,7 @@ class HomeHeavenSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '🌟 천국 영토 소유 증서',
+          AppLocalizations.of(context).heavenCertificateTitle,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -67,7 +68,7 @@ class HomeHeavenSection extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '당신만의 영원한 안식처를 소유하세요',
+                            AppLocalizations.of(context).heavenSubtitle,
                             style: TextStyle(
                               color: Colors.white.withAlpha(220),
                               fontSize: 15,
@@ -91,8 +92,8 @@ class HomeHeavenSection extends StatelessWidget {
                     foregroundColor: Colors.white,
                   ),
                   icon: const Icon(Icons.star, size: 18),
-                  label: const Text(
-                    '토지 구매',
+                  label: Text(
+                    AppLocalizations.of(context).buyLand,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

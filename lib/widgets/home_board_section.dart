@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import '../config/routes.dart';
 import '../models/community_post.dart';
@@ -16,20 +17,20 @@ class HomeBoardSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('게시판', style: Theme.of(context).textTheme.titleMedium),
+            Text(AppLocalizations.of(context).boardTitle, style: Theme.of(context).textTheme.titleMedium),
             TextButton(
               onPressed: () => context.push(AppRoutes.boardGeneral),
-              child: const Text('전체보기'),
+              child: Text(AppLocalizations.of(context).seeAll),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        const PostListWidget(
+        PostListWidget(
           religion: null,
           category: PostCategory.board,
           limit: 5,
           listStyle: PostListStyle.vertical,
-          emptyMessage: '아직 게시글이 없습니다.',
+          emptyMessage: AppLocalizations.of(context).noPostsYet,
         ),
       ],
     );

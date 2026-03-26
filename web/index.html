@@ -37,6 +37,54 @@
   <meta name="google-signin-client_id" content="377587650257-8gtoercocj3r6v1hb2ggc6osqoek7cjm.apps.googleusercontent.com">
 
   <!-- FlutterFire 3.x는 Firebase JS SDK를 main.dart.js에 번들하므로 CDN 스크립트 불필요 -->
+
+  <!-- PWA 설치 프롬프트 캡처 -->
+  <script>
+    window._deferredInstallPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      window._deferredInstallPrompt = e;
+      // Flutter 측에 "설치 가능" 상태 전달용 커스텀 이벤트
+      window.dispatchEvent(new CustomEvent('pwa-installable'));
+    });
+
+    window.addEventListener('appinstalled', function() {
+      window._deferredInstallPrompt = null;
+      window.dispatchEvent(new CustomEvent('pwa-installed'));
+    });
+
+    // Flutter Dart에서 호출: 설치 가능 여부
+    window.isPwaInstallable = function() {
+      return window._deferredInstallPrompt !== null;
+    };
+
+    // Flutter Dart에서 호출: 설치 프롬프트 표시 → Promise<boolean> 반환
+    window.promptPwaInstall = async function() {
+      if (!window._deferredInstallPrompt) return false;
+      window._deferredInstallPrompt.prompt();
+      var result = await window._deferredInstallPrompt.userChoice;
+      window._deferredInstallPrompt = null;
+      return result.outcome === 'accepted';
+    };
+
+    // Flutter Dart에서 호출: 설치 실패/미지원 시 환경 힌트
+    window.getPwaInstallHint = function() {
+      var ua = (navigator.userAgent || '').toLowerCase();
+      var standalone = window.matchMedia('(display-mode: standalone)').matches
+        || window.navigator.standalone === true;
+      if (standalone) return 'installed';
+
+      var isIOS = /iphone|ipad|ipod/.test(ua);
+      var isAndroid = /android/.test(ua);
+      var isInApp = /(kakaotalk|instagram|fb_iab|line|naver|wv)/.test(ua);
+
+      if (isInApp) return 'inapp';
+      if (isIOS) return 'ios';
+      if (isAndroid) return 'android';
+      return 'unknown';
+    };
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

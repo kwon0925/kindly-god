@@ -17,6 +17,7 @@ class CountryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
     final flag = Country.flagAssetPath(country.id);
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -45,7 +46,7 @@ class CountryCard extends StatelessWidget {
                     const SizedBox(height: 10),
                   ],
                   Text(
-                    country.name,
+                    country.displayName(lang),
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),

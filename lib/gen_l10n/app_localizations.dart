@@ -506,6 +506,378 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'뒤로'**
   String get back;
+
+  /// No description provided for @religionSupportPointsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'종교별 응원 포인트'**
+  String get religionSupportPointsTitle;
+
+  /// No description provided for @religionType.
+  ///
+  /// In ko, this message translates to:
+  /// **'종교'**
+  String get religionType;
+
+  /// No description provided for @accountType.
+  ///
+  /// In ko, this message translates to:
+  /// **'계정'**
+  String get accountType;
+
+  /// No description provided for @countryType.
+  ///
+  /// In ko, this message translates to:
+  /// **'국가'**
+  String get countryType;
+
+  /// No description provided for @supportPointHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'응원하기에서 포인트를 쌓아 보세요'**
+  String get supportPointHint;
+
+  /// No description provided for @seeAllReligions.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체보기 ({count}개 종교)'**
+  String seeAllReligions(int count);
+
+  /// No description provided for @totalCountries.
+  ///
+  /// In ko, this message translates to:
+  /// **'총 {count}개 국가'**
+  String totalCountries(int count);
+
+  /// No description provided for @heavenCertificateTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'🌟 천국 영토 소유 증서'**
+  String get heavenCertificateTitle;
+
+  /// No description provided for @heavenSubtitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'당신만의 영원한 안식처를 소유하세요'**
+  String get heavenSubtitle;
+
+  /// No description provided for @buyLand.
+  ///
+  /// In ko, this message translates to:
+  /// **'토지 구매'**
+  String get buyLand;
+
+  /// No description provided for @translateGuideTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지 번역 안내'**
+  String get translateGuideTooltip;
+
+  /// No description provided for @pageTranslateTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'페이지 번역'**
+  String get pageTranslateTitle;
+
+  /// No description provided for @pageTranslateBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 페이지는 한국어로 되어 있습니다.\n\n번역하려면:\n• Chrome/Edge: 주소창 오른쪽의 번역 아이콘을 누르거나,\n• 페이지에서 우클릭 후 \"Translate to...\" 를 선택하세요.\n\nThis page is in Korean. To translate: use the translate icon in the address bar, or right-click → Translate to your language.'**
+  String get pageTranslateBody;
+
+  /// No description provided for @homeTab.
+  ///
+  /// In ko, this message translates to:
+  /// **'홈'**
+  String get homeTab;
+
+  /// No description provided for @supportTab.
+  ///
+  /// In ko, this message translates to:
+  /// **'응원하기'**
+  String get supportTab;
+
+  /// No description provided for @activityNewsTab.
+  ///
+  /// In ko, this message translates to:
+  /// **'활동 소식'**
+  String get activityNewsTab;
+
+  /// No description provided for @rankLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'{rank}위'**
+  String rankLabel(int rank);
+
+  /// No description provided for @activityNewsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'활동 소식'**
+  String get activityNewsTitle;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체보기'**
+  String get seeAll;
+
+  /// No description provided for @noActivityYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 활동 소식이 없습니다.'**
+  String get noActivityYet;
+
+  /// No description provided for @boardTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'게시판'**
+  String get boardTitle;
+
+  /// No description provided for @noPostsYet.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 게시글이 없습니다.'**
+  String get noPostsYet;
+
+  /// No description provided for @noPostsWriteFirst.
+  ///
+  /// In ko, this message translates to:
+  /// **'아직 게시글이 없습니다.\n첫 번째 글을 작성해 보세요!'**
+  String get noPostsWriteFirst;
+
+  /// No description provided for @supportThisReligion.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 종교 응원하기'**
+  String get supportThisReligion;
+
+  /// No description provided for @noReligionActivity.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 종교의 활동 소식이 없습니다.'**
+  String get noReligionActivity;
+
+  /// No description provided for @noReligionBoardPosts.
+  ///
+  /// In ko, this message translates to:
+  /// **'이 종교 게시판에 글이 없습니다.'**
+  String get noReligionBoardPosts;
+
+  /// No description provided for @cannotLoadList.
+  ///
+  /// In ko, this message translates to:
+  /// **'목록을 불러올 수 없습니다.'**
+  String get cannotLoadList;
+
+  /// No description provided for @commentCount.
+  ///
+  /// In ko, this message translates to:
+  /// **'댓글 {count}'**
+  String commentCount(int count);
+
+  /// No description provided for @heavenPurchaseTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'천국 영토 구매'**
+  String get heavenPurchaseTitle;
+
+  /// No description provided for @basicInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 정보'**
+  String get basicInfo;
+
+  /// No description provided for @nameLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름'**
+  String get nameLabel;
+
+  /// No description provided for @nameHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'소유자 이름을 입력하세요'**
+  String get nameHint;
+
+  /// No description provided for @enterName.
+  ///
+  /// In ko, this message translates to:
+  /// **'이름을 입력해 주세요.'**
+  String get enterName;
+
+  /// No description provided for @selectReligion.
+  ///
+  /// In ko, this message translates to:
+  /// **'종교 선택'**
+  String get selectReligion;
+
+  /// No description provided for @styleSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'스타일 설정'**
+  String get styleSettings;
+
+  /// No description provided for @baseWorld.
+  ///
+  /// In ko, this message translates to:
+  /// **'세계관 및 종교 (Base World)'**
+  String get baseWorld;
+
+  /// No description provided for @locationLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'입지 및 지형 (Location)'**
+  String get locationLabel;
+
+  /// No description provided for @vibeLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'분위기 및 구성 요소 (Vibe)'**
+  String get vibeLabel;
+
+  /// No description provided for @visualLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'시각적/감각적 효과 (Visual)'**
+  String get visualLabel;
+
+  /// No description provided for @specialPerksLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'특별 서비스 (Special Perks)'**
+  String get specialPerksLabel;
+
+  /// No description provided for @shippingInfo.
+  ///
+  /// In ko, this message translates to:
+  /// **'발송 정보'**
+  String get shippingInfo;
+
+  /// No description provided for @countryHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'예: 대한민국'**
+  String get countryHint;
+
+  /// No description provided for @enterCountry.
+  ///
+  /// In ko, this message translates to:
+  /// **'국가를 입력해 주세요.'**
+  String get enterCountry;
+
+  /// No description provided for @addressLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'주소'**
+  String get addressLabel;
+
+  /// No description provided for @addressHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'증명서를 받을 상세 주소'**
+  String get addressHint;
+
+  /// No description provided for @enterAddress.
+  ///
+  /// In ko, this message translates to:
+  /// **'주소를 입력해 주세요.'**
+  String get enterAddress;
+
+  /// No description provided for @contactLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'연락처'**
+  String get contactLabel;
+
+  /// No description provided for @contactHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'전화번호 또는 이메일'**
+  String get contactHint;
+
+  /// No description provided for @enterContact.
+  ///
+  /// In ko, this message translates to:
+  /// **'연락처를 입력해 주세요.'**
+  String get enterContact;
+
+  /// No description provided for @selectAllRequired.
+  ///
+  /// In ko, this message translates to:
+  /// **'모든 항목을 선택해 주세요.'**
+  String get selectAllRequired;
+
+  /// No description provided for @registerFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'등록 실패'**
+  String get registerFailed;
+
+  /// No description provided for @heavenDonationNoticeShort.
+  ///
+  /// In ko, this message translates to:
+  /// **'이생에서 구매하신 토지 이용료는\n불우한 이웃을 위해 사용됩니다.'**
+  String get heavenDonationNoticeShort;
+
+  /// No description provided for @processing.
+  ///
+  /// In ko, this message translates to:
+  /// **'처리 중...'**
+  String get processing;
+
+  /// No description provided for @buyHeavenLand.
+  ///
+  /// In ko, this message translates to:
+  /// **'천국 영토 구매하기'**
+  String get buyHeavenLand;
+
+  /// No description provided for @pleaseSelect.
+  ///
+  /// In ko, this message translates to:
+  /// **'선택해 주세요.'**
+  String get pleaseSelect;
+
+  /// No description provided for @congratsOwner.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name}님의\n토지가 구매되었습니다!'**
+  String congratsOwner(String name);
+
+  /// No description provided for @heavenCertificateArrival.
+  ///
+  /// In ko, this message translates to:
+  /// **'약 3~4주 뒤 해당 주소로\n{afterlife} 토지증명서가 도착할 것입니다.'**
+  String heavenCertificateArrival(String afterlife);
+
+  /// No description provided for @purchaseDetails.
+  ///
+  /// In ko, this message translates to:
+  /// **'구매 내역'**
+  String get purchaseDetails;
+
+  /// No description provided for @ownerLabel.
+  ///
+  /// In ko, this message translates to:
+  /// **'소유자'**
+  String get ownerLabel;
+
+  /// No description provided for @shippingCountry.
+  ///
+  /// In ko, this message translates to:
+  /// **'발송 국가'**
+  String get shippingCountry;
+
+  /// No description provided for @heavenDonationNoticeLong.
+  ///
+  /// In ko, this message translates to:
+  /// **'이생에서 구매하신 토지 이용료는\n불우한 이웃을 위해 사용됩니다.\n당신의 선행은 천상에 영원히 기록될 것입니다.'**
+  String get heavenDonationNoticeLong;
+
+  /// No description provided for @goHome.
+  ///
+  /// In ko, this message translates to:
+  /// **'홈으로'**
+  String get goHome;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -17,6 +17,7 @@ class ReligionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = Localizations.localeOf(context).languageCode;
     final imgPath = Religion.imagePath(religion.id);
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -80,7 +81,7 @@ class ReligionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    religion.name,
+                    religion.displayName(lang),
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       color: imgPath != null ? Colors.white : null,
                       fontWeight: FontWeight.bold,

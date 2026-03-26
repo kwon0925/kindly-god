@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../models/religion.dart';
 import '../models/ranking.dart';
 import '../repository/user_profile_repository.dart';
 import '../services/auth_service.dart';
 import '../state/test_point_provider.dart';
 import '../state/user_profile_provider.dart';
+import '../widgets/donation_blessing_dialog.dart';
 
 class SupportScreen extends ConsumerStatefulWidget {
   const SupportScreen({super.key});
@@ -153,6 +155,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('1 P 적립됨 (10회마다 10 P 추가)')),
         );
+        await _showDonationBlessing(profile.religionId!);
       }
       return;
     }
@@ -171,6 +174,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('1 P 적립됨 (테스트)')),
       );
+      await _showDonationBlessing(state.selectedReligionId!);
     }
   }
 
@@ -206,6 +210,7 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$amount P 적립됨 (계정·종교·국가 랭킹에 반영됩니다)')),
         );
+        await _showDonationBlessing(profile.religionId!);
       }
       return;
     }
@@ -229,7 +234,18 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$amount P 적립됨 (유저 ${state.currentTestUser}, 종교·국가 반영)')),
       );
+      await _showDonationBlessing(state.selectedReligionId!);
     }
+  }
+
+  Future<void> _showDonationBlessing(String religionId) async {
+    final imagePath = Religion.donationImagePath(religionId);
+    if (imagePath == null || !mounted) return;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => DonationBlessingDialog(imageAssetPath: imagePath),
+    );
   }
 
   void _showCustomAmountDialog(BuildContext context) {

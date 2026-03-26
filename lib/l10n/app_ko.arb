@@ -150,5 +150,166 @@
   "@adPointsEarned": {},
 
   "back": "뒤로",
-  "@back": {}
+  "@back": {},
+
+  "religionSupportPointsTitle": "종교별 응원 포인트",
+  "@religionSupportPointsTitle": {},
+  "religionType": "종교",
+  "@religionType": {},
+  "accountType": "계정",
+  "@accountType": {},
+  "countryType": "국가",
+  "@countryType": {},
+  "supportPointHint": "응원하기에서 포인트를 쌓아 보세요",
+  "@supportPointHint": {},
+  "seeAllReligions": "전체보기 ({count}개 종교)",
+  "@seeAllReligions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "totalCountries": "총 {count}개 국가",
+  "@totalCountries": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "heavenCertificateTitle": "🌟 천국 영토 소유 증서",
+  "@heavenCertificateTitle": {},
+  "heavenSubtitle": "당신만의 영원한 안식처를 소유하세요",
+  "@heavenSubtitle": {},
+  "buyLand": "토지 구매",
+  "@buyLand": {},
+  "translateGuideTooltip": "페이지 번역 안내",
+  "@translateGuideTooltip": {},
+  "pageTranslateTitle": "페이지 번역",
+  "@pageTranslateTitle": {},
+  "pageTranslateBody": "이 페이지는 한국어로 되어 있습니다.\n\n번역하려면:\n• Chrome/Edge: 주소창 오른쪽의 번역 아이콘을 누르거나,\n• 페이지에서 우클릭 후 \"Translate to...\" 를 선택하세요.\n\nThis page is in Korean. To translate: use the translate icon in the address bar, or right-click → Translate to your language.",
+  "@pageTranslateBody": {},
+  "homeTab": "홈",
+  "@homeTab": {},
+  "supportTab": "응원하기",
+  "@supportTab": {},
+  "activityNewsTab": "활동 소식",
+  "@activityNewsTab": {},
+  "rankLabel": "{rank}위",
+  "@rankLabel": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
+  "activityNewsTitle": "활동 소식",
+  "@activityNewsTitle": {},
+  "seeAll": "전체보기",
+  "@seeAll": {},
+  "noActivityYet": "아직 활동 소식이 없습니다.",
+  "@noActivityYet": {},
+  "boardTitle": "게시판",
+  "@boardTitle": {},
+  "noPostsYet": "아직 게시글이 없습니다.",
+  "@noPostsYet": {},
+  "noPostsWriteFirst": "아직 게시글이 없습니다.\n첫 번째 글을 작성해 보세요!",
+  "@noPostsWriteFirst": {},
+  "supportThisReligion": "이 종교 응원하기",
+  "@supportThisReligion": {},
+  "noReligionActivity": "이 종교의 활동 소식이 없습니다.",
+  "@noReligionActivity": {},
+  "noReligionBoardPosts": "이 종교 게시판에 글이 없습니다.",
+  "@noReligionBoardPosts": {},
+  "cannotLoadList": "목록을 불러올 수 없습니다.",
+  "@cannotLoadList": {},
+  "commentCount": "댓글 {count}",
+  "@commentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "heavenPurchaseTitle": "천국 영토 구매",
+  "@heavenPurchaseTitle": {},
+  "basicInfo": "기본 정보",
+  "@basicInfo": {},
+  "nameLabel": "이름",
+  "@nameLabel": {},
+  "nameHint": "소유자 이름을 입력하세요",
+  "@nameHint": {},
+  "enterName": "이름을 입력해 주세요.",
+  "@enterName": {},
+  "selectReligion": "종교 선택",
+  "@selectReligion": {},
+  "styleSettings": "스타일 설정",
+  "@styleSettings": {},
+  "baseWorld": "세계관 및 종교 (Base World)",
+  "@baseWorld": {},
+  "locationLabel": "입지 및 지형 (Location)",
+  "@locationLabel": {},
+  "vibeLabel": "분위기 및 구성 요소 (Vibe)",
+  "@vibeLabel": {},
+  "visualLabel": "시각적/감각적 효과 (Visual)",
+  "@visualLabel": {},
+  "specialPerksLabel": "특별 서비스 (Special Perks)",
+  "@specialPerksLabel": {},
+  "shippingInfo": "발송 정보",
+  "@shippingInfo": {},
+  "countryHint": "예: 대한민국",
+  "@countryHint": {},
+  "enterCountry": "국가를 입력해 주세요.",
+  "@enterCountry": {},
+  "addressLabel": "주소",
+  "@addressLabel": {},
+  "addressHint": "증명서를 받을 상세 주소",
+  "@addressHint": {},
+  "enterAddress": "주소를 입력해 주세요.",
+  "@enterAddress": {},
+  "contactLabel": "연락처",
+  "@contactLabel": {},
+  "contactHint": "전화번호 또는 이메일",
+  "@contactHint": {},
+  "enterContact": "연락처를 입력해 주세요.",
+  "@enterContact": {},
+  "selectAllRequired": "모든 항목을 선택해 주세요.",
+  "@selectAllRequired": {},
+  "registerFailed": "등록 실패",
+  "@registerFailed": {},
+  "heavenDonationNoticeShort": "이생에서 구매하신 토지 이용료는\n불우한 이웃을 위해 사용됩니다.",
+  "@heavenDonationNoticeShort": {},
+  "processing": "처리 중...",
+  "@processing": {},
+  "buyHeavenLand": "천국 영토 구매하기",
+  "@buyHeavenLand": {},
+  "pleaseSelect": "선택해 주세요.",
+  "@pleaseSelect": {},
+  "congratsOwner": "{name}님의\n토지가 구매되었습니다!",
+  "@congratsOwner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "heavenCertificateArrival": "약 3~4주 뒤 해당 주소로\n{afterlife} 토지증명서가 도착할 것입니다.",
+  "@heavenCertificateArrival": {
+    "placeholders": {
+      "afterlife": {
+        "type": "String"
+      }
+    }
+  },
+  "purchaseDetails": "구매 내역",
+  "@purchaseDetails": {},
+  "ownerLabel": "소유자",
+  "@ownerLabel": {},
+  "shippingCountry": "발송 국가",
+  "@shippingCountry": {},
+  "heavenDonationNoticeLong": "이생에서 구매하신 토지 이용료는\n불우한 이웃을 위해 사용됩니다.\n당신의 선행은 천상에 영원히 기록될 것입니다.",
+  "@heavenDonationNoticeLong": {},
+  "goHome": "홈으로",
+  "@goHome": {}
 }

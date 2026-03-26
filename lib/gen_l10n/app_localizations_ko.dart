@@ -209,4 +209,202 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get back => '뒤로';
+
+  @override
+  String get religionSupportPointsTitle => '종교별 응원 포인트';
+
+  @override
+  String get religionType => '종교';
+
+  @override
+  String get accountType => '계정';
+
+  @override
+  String get countryType => '국가';
+
+  @override
+  String get supportPointHint => '응원하기에서 포인트를 쌓아 보세요';
+
+  @override
+  String seeAllReligions(int count) {
+    return '전체보기 ($count개 종교)';
+  }
+
+  @override
+  String totalCountries(int count) {
+    return '총 $count개 국가';
+  }
+
+  @override
+  String get heavenCertificateTitle => '🌟 천국 영토 소유 증서';
+
+  @override
+  String get heavenSubtitle => '당신만의 영원한 안식처를 소유하세요';
+
+  @override
+  String get buyLand => '토지 구매';
+
+  @override
+  String get translateGuideTooltip => '페이지 번역 안내';
+
+  @override
+  String get pageTranslateTitle => '페이지 번역';
+
+  @override
+  String get pageTranslateBody => '이 페이지는 한국어로 되어 있습니다.\n\n번역하려면:\n• Chrome/Edge: 주소창 오른쪽의 번역 아이콘을 누르거나,\n• 페이지에서 우클릭 후 \"Translate to...\" 를 선택하세요.\n\nThis page is in Korean. To translate: use the translate icon in the address bar, or right-click → Translate to your language.';
+
+  @override
+  String get homeTab => '홈';
+
+  @override
+  String get supportTab => '응원하기';
+
+  @override
+  String get activityNewsTab => '활동 소식';
+
+  @override
+  String rankLabel(int rank) {
+    return '$rank위';
+  }
+
+  @override
+  String get activityNewsTitle => '활동 소식';
+
+  @override
+  String get seeAll => '전체보기';
+
+  @override
+  String get noActivityYet => '아직 활동 소식이 없습니다.';
+
+  @override
+  String get boardTitle => '게시판';
+
+  @override
+  String get noPostsYet => '아직 게시글이 없습니다.';
+
+  @override
+  String get noPostsWriteFirst => '아직 게시글이 없습니다.\n첫 번째 글을 작성해 보세요!';
+
+  @override
+  String get supportThisReligion => '이 종교 응원하기';
+
+  @override
+  String get noReligionActivity => '이 종교의 활동 소식이 없습니다.';
+
+  @override
+  String get noReligionBoardPosts => '이 종교 게시판에 글이 없습니다.';
+
+  @override
+  String get cannotLoadList => '목록을 불러올 수 없습니다.';
+
+  @override
+  String commentCount(int count) {
+    return '댓글 $count';
+  }
+
+  @override
+  String get heavenPurchaseTitle => '천국 영토 구매';
+
+  @override
+  String get basicInfo => '기본 정보';
+
+  @override
+  String get nameLabel => '이름';
+
+  @override
+  String get nameHint => '소유자 이름을 입력하세요';
+
+  @override
+  String get enterName => '이름을 입력해 주세요.';
+
+  @override
+  String get selectReligion => '종교 선택';
+
+  @override
+  String get styleSettings => '스타일 설정';
+
+  @override
+  String get baseWorld => '세계관 및 종교 (Base World)';
+
+  @override
+  String get locationLabel => '입지 및 지형 (Location)';
+
+  @override
+  String get vibeLabel => '분위기 및 구성 요소 (Vibe)';
+
+  @override
+  String get visualLabel => '시각적/감각적 효과 (Visual)';
+
+  @override
+  String get specialPerksLabel => '특별 서비스 (Special Perks)';
+
+  @override
+  String get shippingInfo => '발송 정보';
+
+  @override
+  String get countryHint => '예: 대한민국';
+
+  @override
+  String get enterCountry => '국가를 입력해 주세요.';
+
+  @override
+  String get addressLabel => '주소';
+
+  @override
+  String get addressHint => '증명서를 받을 상세 주소';
+
+  @override
+  String get enterAddress => '주소를 입력해 주세요.';
+
+  @override
+  String get contactLabel => '연락처';
+
+  @override
+  String get contactHint => '전화번호 또는 이메일';
+
+  @override
+  String get enterContact => '연락처를 입력해 주세요.';
+
+  @override
+  String get selectAllRequired => '모든 항목을 선택해 주세요.';
+
+  @override
+  String get registerFailed => '등록 실패';
+
+  @override
+  String get heavenDonationNoticeShort => '이생에서 구매하신 토지 이용료는\n불우한 이웃을 위해 사용됩니다.';
+
+  @override
+  String get processing => '처리 중...';
+
+  @override
+  String get buyHeavenLand => '천국 영토 구매하기';
+
+  @override
+  String get pleaseSelect => '선택해 주세요.';
+
+  @override
+  String congratsOwner(String name) {
+    return '$name님의\n토지가 구매되었습니다!';
+  }
+
+  @override
+  String heavenCertificateArrival(String afterlife) {
+    return '약 3~4주 뒤 해당 주소로\n$afterlife 토지증명서가 도착할 것입니다.';
+  }
+
+  @override
+  String get purchaseDetails => '구매 내역';
+
+  @override
+  String get ownerLabel => '소유자';
+
+  @override
+  String get shippingCountry => '발송 국가';
+
+  @override
+  String get heavenDonationNoticeLong => '이생에서 구매하신 토지 이용료는\n불우한 이웃을 위해 사용됩니다.\n당신의 선행은 천상에 영원히 기록될 것입니다.';
+
+  @override
+  String get goHome => '홈으로';
 }

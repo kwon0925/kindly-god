@@ -209,4 +209,202 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get back => 'رجوع';
+
+  @override
+  String get religionSupportPointsTitle => 'نقاط الدعم حسب الدين';
+
+  @override
+  String get religionType => 'الدين';
+
+  @override
+  String get accountType => 'الحساب';
+
+  @override
+  String get countryType => 'الدولة';
+
+  @override
+  String get supportPointHint => 'اجمع النقاط من قسم الدعم';
+
+  @override
+  String seeAllReligions(int count) {
+    return 'عرض الكل ($count ديانات)';
+  }
+
+  @override
+  String totalCountries(int count) {
+    return 'إجمالي $count دولة';
+  }
+
+  @override
+  String get heavenCertificateTitle => '🌟 شهادة ملكية أراضي الجنة';
+
+  @override
+  String get heavenSubtitle => 'امتلك مكان راحتك الأبدي الخاص بك';
+
+  @override
+  String get buyLand => 'شراء أرض';
+
+  @override
+  String get translateGuideTooltip => 'دليل ترجمة الصفحة';
+
+  @override
+  String get pageTranslateTitle => 'ترجمة الصفحة';
+
+  @override
+  String get pageTranslateBody => 'هذه الصفحة باللغة الكورية.\n\nللترجمة:\n• في Chrome/Edge اضغط أيقونة الترجمة في شريط العنوان\n• أو انقر بزر الفأرة الأيمن واختر \"Translate to...\"';
+
+  @override
+  String get homeTab => 'الرئيسية';
+
+  @override
+  String get supportTab => 'الدعم';
+
+  @override
+  String get activityNewsTab => 'الأخبار';
+
+  @override
+  String rankLabel(int rank) {
+    return '#$rank';
+  }
+
+  @override
+  String get activityNewsTitle => 'أخبار النشاط';
+
+  @override
+  String get seeAll => 'عرض الكل';
+
+  @override
+  String get noActivityYet => 'لا توجد أخبار نشاط بعد.';
+
+  @override
+  String get boardTitle => 'المنتدى';
+
+  @override
+  String get noPostsYet => 'لا توجد منشورات بعد.';
+
+  @override
+  String get noPostsWriteFirst => 'لا توجد منشورات بعد.\nاكتب أول منشور!';
+
+  @override
+  String get supportThisReligion => 'ادعم هذا الدين';
+
+  @override
+  String get noReligionActivity => 'لا توجد أخبار لهذا الدين.';
+
+  @override
+  String get noReligionBoardPosts => 'لا توجد منشورات منتدى لهذا الدين.';
+
+  @override
+  String get cannotLoadList => 'تعذر تحميل القائمة.';
+
+  @override
+  String commentCount(int count) {
+    return 'التعليقات $count';
+  }
+
+  @override
+  String get heavenPurchaseTitle => 'شراء أرض سماوية';
+
+  @override
+  String get basicInfo => 'المعلومات الأساسية';
+
+  @override
+  String get nameLabel => 'الاسم';
+
+  @override
+  String get nameHint => 'أدخل اسم المالك';
+
+  @override
+  String get enterName => 'يرجى إدخال الاسم.';
+
+  @override
+  String get selectReligion => 'اختر الدين';
+
+  @override
+  String get styleSettings => 'إعدادات النمط';
+
+  @override
+  String get baseWorld => 'العالم الأساسي والدين';
+
+  @override
+  String get locationLabel => 'الموقع والتضاريس';
+
+  @override
+  String get vibeLabel => 'الأجواء والعناصر';
+
+  @override
+  String get visualLabel => 'التأثيرات البصرية/الحسية';
+
+  @override
+  String get specialPerksLabel => 'الخدمات الخاصة';
+
+  @override
+  String get shippingInfo => 'معلومات الشحن';
+
+  @override
+  String get countryHint => 'مثال: كوريا الجنوبية';
+
+  @override
+  String get enterCountry => 'يرجى إدخال الدولة.';
+
+  @override
+  String get addressLabel => 'العنوان';
+
+  @override
+  String get addressHint => 'العنوان التفصيلي لاستلام الشهادة';
+
+  @override
+  String get enterAddress => 'يرجى إدخال العنوان.';
+
+  @override
+  String get contactLabel => 'جهة الاتصال';
+
+  @override
+  String get contactHint => 'رقم الهاتف أو البريد الإلكتروني';
+
+  @override
+  String get enterContact => 'يرجى إدخال جهة الاتصال.';
+
+  @override
+  String get selectAllRequired => 'يرجى اختيار جميع الحقول المطلوبة.';
+
+  @override
+  String get registerFailed => 'فشل التسجيل';
+
+  @override
+  String get heavenDonationNoticeShort => 'رسوم استخدام الأرض المشتراة في هذه الحياة\nتُستخدم لمساعدة الجيران المحتاجين.';
+
+  @override
+  String get processing => 'جارٍ المعالجة...';
+
+  @override
+  String get buyHeavenLand => 'شراء أرض سماوية';
+
+  @override
+  String get pleaseSelect => 'يرجى الاختيار.';
+
+  @override
+  String congratsOwner(String name) {
+    return '🎉 $name،\nتم شراء أرضك بنجاح!';
+  }
+
+  @override
+  String heavenCertificateArrival(String afterlife) {
+    return 'خلال حوالي 3-4 أسابيع،\nستصل شهادة أرض $afterlife إلى عنوانك.';
+  }
+
+  @override
+  String get purchaseDetails => 'تفاصيل الشراء';
+
+  @override
+  String get ownerLabel => 'المالك';
+
+  @override
+  String get shippingCountry => 'دولة الشحن';
+
+  @override
+  String get heavenDonationNoticeLong => 'رسوم استخدام الأرض المشتراة في هذه الحياة\nتُستخدم لمساعدة الجيران المحتاجين.\nسيتم تسجيل عملك الصالح إلى الأبد في السماء.';
+
+  @override
+  String get goHome => 'العودة للرئيسية';
 }

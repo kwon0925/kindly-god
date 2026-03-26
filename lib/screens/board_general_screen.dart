@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../auth/admin/admin_role.dart';
@@ -17,7 +18,7 @@ class BoardGeneralScreen extends ConsumerWidget {
     final profileAsync = ref.watch(currentUserProfileProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('게시판'),
+        title: Text(AppLocalizations.of(context).boardTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -35,7 +36,7 @@ class BoardGeneralScreen extends ConsumerWidget {
                 '${AppRoutes.boardWrite}?religion=all&category=${PostCategory.board}',
               ),
               icon: const Icon(Icons.edit),
-              label: const Text('글쓰기'),
+              label: Text(AppLocalizations.of(context).writePost),
             );
           }
           final religionId = profile?.religionId;
@@ -45,15 +46,15 @@ class BoardGeneralScreen extends ConsumerWidget {
               '${AppRoutes.boardWrite}?religion=$religionId&category=${PostCategory.board}',
             ),
             icon: const Icon(Icons.edit),
-            label: const Text('글쓰기'),
+            label: Text(AppLocalizations.of(context).writePost),
           );
         },
       ),
-      body: const PostListWidget(
+      body: PostListWidget(
         religion: null,
         category: PostCategory.board,
         scrollable: true,
-        emptyMessage: '아직 게시글이 없습니다.\n첫 번째 글을 작성해 보세요!',
+        emptyMessage: AppLocalizations.of(context).noPostsWriteFirst,
       ),
     );
   }

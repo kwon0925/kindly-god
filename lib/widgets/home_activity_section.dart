@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import '../config/routes.dart';
 import '../models/community_post.dart';
@@ -17,22 +18,22 @@ class HomeActivitySection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '활동 소식',
+              AppLocalizations.of(context).activityNewsTitle,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             TextButton(
               onPressed: () => context.push(AppRoutes.board),
-              child: const Text('전체보기'),
+              child: Text(AppLocalizations.of(context).seeAll),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        const PostListWidget(
+        PostListWidget(
           religion: null,
           category: PostCategory.news,
           limit: 5,
           listStyle: PostListStyle.horizontal,
-          emptyMessage: '아직 활동 소식이 없습니다.',
+          emptyMessage: AppLocalizations.of(context).noActivityYet,
         ),
       ],
     );

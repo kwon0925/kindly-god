@@ -17,8 +17,25 @@ class HeavenOptions {
     'other':        '낙원 (Paradise)',
   };
 
-  static String afterlifeName(String religionId) =>
-      religionAfterlifeNames[religionId] ?? '낙원 (Paradise)';
+  static String afterlifeName(String religionId, String languageCode) {
+    const localized = <String, Map<String, String>>{
+      'christianity': {'ko': '천국', 'en': 'Heaven', 'zh': '天堂', 'ja': '天国', 'es': 'Cielo', 'fr': 'Paradis', 'de': 'Himmel', 'ru': 'Небеса', 'pt': 'Céu', 'ar': 'الجنة'},
+      'catholicism': {'ko': '천국', 'en': 'Heaven', 'zh': '天堂', 'ja': '天国', 'es': 'Cielo', 'fr': 'Paradis', 'de': 'Himmel', 'ru': 'Небеса', 'pt': 'Céu', 'ar': 'الجنة'},
+      'buddhism': {'ko': '극락', 'en': 'Pure Land', 'zh': '极乐净土', 'ja': '極楽浄土', 'es': 'Tierra Pura', 'fr': 'Terre Pure', 'de': 'Reines Land', 'ru': 'Чистая Земля', 'pt': 'Terra Pura', 'ar': 'الأرض الطاهرة'},
+      'islam': {'ko': '잔나', 'en': 'Jannah', 'zh': '乐园', 'ja': 'ジャンナ', 'es': 'Yannah', 'fr': 'Jannah', 'de': 'Dschanna', 'ru': 'Джанна', 'pt': 'Jannah', 'ar': 'جنة'},
+      'hinduism': {'ko': '스와르가', 'en': 'Svarga', 'zh': '天界', 'ja': 'スヴァルガ', 'es': 'Svarga', 'fr': 'Svarga', 'de': 'Svarga', 'ru': 'Сварга', 'pt': 'Svarga', 'ar': 'سفارغا'},
+      'judaism': {'ko': '간 에덴', 'en': 'Gan Eden', 'zh': '伊甸园', 'ja': 'ガン・エデン', 'es': 'Gan Eden', 'fr': 'Gan Eden', 'de': 'Gan Eden', 'ru': 'Ган Эден', 'pt': 'Gan Eden', 'ar': 'جن عدن'},
+      'sikhism': {'ko': '삭칸드', 'en': 'Sachkhand', 'zh': '真境', 'ja': 'サッチカンド', 'es': 'Sachkhand', 'fr': 'Sachkhand', 'de': 'Sachkhand', 'ru': 'Сачкханд', 'pt': 'Sachkhand', 'ar': 'ساتشخاند'},
+      'taoism': {'ko': '선경', 'en': 'Immortal Realm', 'zh': '仙境', 'ja': '仙境', 'es': 'Reino inmortal', 'fr': 'Royaume immortel', 'de': 'Reich der Unsterblichen', 'ru': 'Мир бессмертных', 'pt': 'Reino imortal', 'ar': 'عالم الخالدين'},
+      'confucianism': {'ko': '천상', 'en': 'Heavenly Realm', 'zh': '天上', 'ja': '天上界', 'es': 'Reino celestial', 'fr': 'Royaume céleste', 'de': 'Himmlisches Reich', 'ru': 'Небесный мир', 'pt': 'Reino celestial', 'ar': 'العالم السماوي'},
+      'shinto': {'ko': '타카마가하라', 'en': 'Takamagahara', 'zh': '高天原', 'ja': '高天原', 'es': 'Takamagahara', 'fr': 'Takamagahara', 'de': 'Takamagahara', 'ru': 'Такамагахара', 'pt': 'Takamagahara', 'ar': 'تاكاماغاهارا'},
+      'other': {'ko': '낙원', 'en': 'Paradise', 'zh': '乐园', 'ja': '楽園', 'es': 'Paraíso', 'fr': 'Paradis', 'de': 'Paradies', 'ru': 'Рай', 'pt': 'Paraíso', 'ar': 'الفردوس'},
+    };
+    final code = languageCode.toLowerCase();
+    final names = localized[religionId];
+    if (names == null) return code == 'ko' ? '낙원' : 'Paradise';
+    return names[code] ?? names['en'] ?? 'Paradise';
+  }
 
   // ── 선택 종교 목록 (id, 한국어 이름) ─────────────────────
   static const List<Map<String, String>> religions = [

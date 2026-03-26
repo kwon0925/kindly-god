@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../auth/admin/admin_role.dart';
@@ -25,11 +26,13 @@ class ReligionDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final r = _religion;
+    final lang = Localizations.localeOf(context).languageCode;
+    final l10n = AppLocalizations.of(context);
     final points = ref.watch(testPointProvider).state.getReligionPoints(r.id);
     final profileAsync = ref.watch(currentUserProfileProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text(r.name),
+        title: Text(r.displayName(lang)),
         leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => context.pop()),
       ),
       floatingActionButton: profileAsync.when(
@@ -44,7 +47,7 @@ class ReligionDetailScreen extends ConsumerWidget {
                 '${AppRoutes.boardWrite}?religion=$religionId',
               ),
               icon: const Icon(Icons.edit),
-              label: const Text('글쓰기'),
+              label: Text(l10n.writePost),
             );
           }
           final userReligion = profile?.religionId;
@@ -55,7 +58,7 @@ class ReligionDetailScreen extends ConsumerWidget {
               '${AppRoutes.boardWrite}?religion=$religionId',
             ),
             icon: const Icon(Icons.edit),
-            label: const Text('글쓰기'),
+            label: Text(l10n.writePost),
           );
         },
       ),
@@ -73,7 +76,7 @@ class ReligionDetailScreen extends ConsumerWidget {
                       style: TextStyle(fontSize: 64, height: 1.1, color: Theme.of(context).colorScheme.primary),
                     ),
                     const SizedBox(height: 16),
-                    Text(r.name, style: Theme.of(context).textTheme.headlineSmall),
+                    Text(r.displayName(lang), style: Theme.of(context).textTheme.headlineSmall),
                     const SizedBox(height: 8),
                     Text('$points P', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.primary)),
                   ],
@@ -85,28 +88,28 @@ class ReligionDetailScreen extends ConsumerWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => context.push(AppRoutes.support),
                   icon: const Icon(Icons.volunteer_activism),
-                  label: const Text('이 종교 응원하기'),
+                  label: Text(l10n.supportThisReligion),
                 ),
               ),
               const SizedBox(height: 28),
-              Text('활동 소식', style: Theme.of(context).textTheme.titleMedium),
+              Text(l10n.activityNewsTitle, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               PostListWidget(
                 religion: religionId,
                 category: PostCategory.news,
                 limit: 10,
                 scrollable: false,
-                emptyMessage: '이 종교의 활동 소식이 없습니다.',
+                emptyMessage: l10n.noReligionActivity,
               ),
               const SizedBox(height: 20),
-              Text('게시판', style: Theme.of(context).textTheme.titleMedium),
+              Text(l10n.boardTitle, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               PostListWidget(
                 religion: religionId,
                 category: PostCategory.board,
                 limit: 10,
                 scrollable: false,
-                emptyMessage: '이 종교 게시판에 글이 없습니다.',
+                emptyMessage: l10n.noReligionBoardPosts,
               ),
               const SizedBox(height: 24),
             ],

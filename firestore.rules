@@ -47,6 +47,17 @@ service cloud.firestore {
         && resource.data.uid == request.auth.uid;
     }
 
+    // FCM 토큰: 비로그인도 생성 허용 (비로그인 푸시 대상 포함).
+    // 읽기는 클라이언트 차단 (Cloud Functions 서버에서만 읽음).
+    // 수정·삭제는 본인(userId 일치) 또는 userId가 없는 익명 토큰만 허용.
+    match /fcm_tokens/{tokenId} {
+      allow create: if true;
+      allow read: if false;
+      allow update, delete: if
+        (isSignedIn() && resource.data.userId == request.auth.uid)
+        || resource.data.userId == null;
+    }
+
     // 게시판: 비로그인도 읽기 가능, 쓰기·삭제는 로그인 필요
     match /posts/{postId} {
       allow read: if true;

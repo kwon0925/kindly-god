@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth/admin/admin_role.dart';
@@ -10,6 +11,7 @@ import '../services/auth_service.dart';
 import '../state/locale_provider.dart';
 import '../state/test_point_provider.dart';
 import '../state/user_profile_provider.dart';
+import '../state/fcm_provider.dart';
 import 'language_picker_sheet.dart';
 
 /// ?? ?? ?? ?? ?? ??? ? ? ??
@@ -156,7 +158,7 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     }
   }
 
-  /// ??·?? ?? ?????. ???? '??'? ??? true ??.
+  /// ????? ?? ?????. ???? '??'? ??? true ??.
   Future<bool> _showReligionCountryConfirmDialog() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -249,6 +251,17 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     final testState = ref.watch(testPointProvider).state;
     final user = AuthService.currentUser;
     final l10n = AppLocalizations.of(context);
+    final permission = ref.watch(notificationPermissionProvider);
+    final requestNotificationPermission = ref.read(requestNotificationPermissionProvider);
+
+    String permissionLabel(AuthorizationStatus? status) {
+      if (status == AuthorizationStatus.authorized ||
+          status == AuthorizationStatus.provisional) {
+        return '???';
+      }
+      if (status == AuthorizationStatus.denied) return '???';
+      return '???';
+    }
 
     if (user != null) {
       final profileAsync = ref.watch(currentUserProfileProvider);
@@ -342,6 +355,32 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                 Text(l10n.languageSettings, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 4),
                 const LanguagePickerTile(),
+
+                const SizedBox(height: 14),
+                Text('?? ??', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                const SizedBox(height: 6),
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 0),
+                  leading: const Icon(Icons.notifications_active_outlined, size: 20),
+                  title: const Text('?? ??'),
+                  subtitle: Text('??: ${permissionLabel(permission)}'),
+                  trailing: FilledButton.tonal(
+                    onPressed: () async {
+                      final granted = await requestNotificationPermission();
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            granted
+                                ? '??? ???????.'
+                                : '???? ???? ??? ??? ???.',
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text('?? ??'),
+                  ),
+                ),
 
                 // ??? ??
                 if (_adminError != null) ...[
@@ -489,7 +528,7 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
   }
 }
 
-/// ??·?? ??? ?? ?? ??
+/// ????? ??? ?? ?? ??
 class _SelectField extends StatelessWidget {
   final String? value;
   final String hint;

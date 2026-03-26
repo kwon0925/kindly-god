@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import '../config/routes.dart';
 import '../models/heaven_order.dart';
@@ -10,11 +11,11 @@ class HeavenCompleteScreen extends StatelessWidget {
 
   const HeavenCompleteScreen({super.key, required this.order});
 
-  String get _afterlifeName =>
-      HeavenOptions.afterlifeName(order.religion);
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final lang = Localizations.localeOf(context).languageCode;
+    final afterlifeName = HeavenOptions.afterlifeName(order.religion, lang);
     return Scaffold(
       backgroundColor: const Color(0xFF1a1a2e),
       body: SafeArea(
@@ -43,7 +44,7 @@ class HeavenCompleteScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                '🎉 ${order.name}님의\n토지가 구매되었습니다!',
+                '🎉 ${l10n.congratsOwner(order.name)}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white,
@@ -54,7 +55,7 @@ class HeavenCompleteScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                '약 3~4주 뒤 해당 주소로\n$_afterlifeName 토지증명서가 도착할 것입니다.',
+                l10n.heavenCertificateArrival(afterlifeName),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.amber.shade200,
@@ -78,19 +79,19 @@ class HeavenCompleteScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _sectionTitle('📜 구매 내역'),
+                    _sectionTitle('📜 ${l10n.purchaseDetails}'),
                     const SizedBox(height: 12),
-                    _row('소유자', order.name),
-                    _row('종교', _afterlifeName),
-                    _row('세계관', order.baseWorld),
-                    _row('입지', order.location),
-                    _row('분위기', order.vibe),
-                    _row('효과', order.visualEffect),
-                    _row('특별 서비스', order.specialPerk),
+                    _row(l10n.ownerLabel, order.name),
+                    _row(l10n.religionType, afterlifeName),
+                    _row(l10n.baseWorld, order.baseWorld),
+                    _row(l10n.locationLabel, order.location),
+                    _row(l10n.vibeLabel, order.vibe),
+                    _row(l10n.visualLabel, order.visualEffect),
+                    _row(l10n.specialPerksLabel, order.specialPerk),
                     const Divider(color: Colors.white24, height: 24),
-                    _row('발송 국가', order.country),
-                    _row('주소', order.address),
-                    _row('연락처', order.contact),
+                    _row(l10n.shippingCountry, order.country),
+                    _row(l10n.addressLabel, order.address),
+                    _row(l10n.contactLabel, order.contact),
                   ],
                 ),
               ),
@@ -106,7 +107,7 @@ class HeavenCompleteScreen extends StatelessWidget {
                   border: Border.all(color: Colors.indigo.shade300.withAlpha(80)),
                 ),
                 child: Text(
-                  '💛  이생에서 구매하신 토지 이용료는\n불우한 이웃을 위해 사용됩니다.\n당신의 선행은 천상에 영원히 기록될 것입니다.',
+                  '💛  ${l10n.heavenDonationNoticeLong}',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.indigo.shade100,
@@ -128,8 +129,8 @@ class HeavenCompleteScreen extends StatelessWidget {
                     foregroundColor: Colors.white,
                   ),
                   icon: const Icon(Icons.home),
-                  label: const Text(
-                    '홈으로',
+                  label: Text(
+                    l10n.goHome,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
