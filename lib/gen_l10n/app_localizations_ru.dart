@@ -407,4 +407,33 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get goHome => 'На главную';
+
+  @override
+  String get notificationSectionTitle => 'Уведомления';
+
+  @override
+  String get pushNotificationsTitle => 'Push-уведомления';
+
+  @override
+  String notificationStatusWithValue(String value) {
+    return 'Статус: $value';
+  }
+
+  @override
+  String get notificationPermissionGranted => 'Разрешено';
+
+  @override
+  String get notificationPermissionDenied => 'Запрещено';
+
+  @override
+  String get notificationPermissionUnknown => 'Не определено';
+
+  @override
+  String get notificationPermissionRequest => 'Разрешить уведомления';
+
+  @override
+  String get notificationPermissionGrantedMessage => 'Разрешение на уведомления предоставлено.';
+
+  @override
+  String get notificationPermissionDeniedMessage => 'Уведомления запрещены или заблокированы браузером.';
 }

@@ -139,5 +139,15 @@
   "ownerLabel": "Proprietário",
   "shippingCountry": "País de envio",
   "heavenDonationNoticeLong": "As taxas de uso do terreno comprado nesta vida\nsão usadas para ajudar vizinhos necessitados.\nSua boa ação será registrada eternamente no céu.",
-  "goHome": "Ir para início"
+  "goHome": "Ir para início",
+  "notificationSectionTitle": "Notificações",
+  "pushNotificationsTitle": "Notificações push",
+  "notificationStatusWithValue": "Status: {value}",
+  "@notificationStatusWithValue": { "placeholders": { "value": { "type": "String" } } },
+  "notificationPermissionGranted": "Permitido",
+  "notificationPermissionDenied": "Negado",
+  "notificationPermissionUnknown": "Indefinido",
+  "notificationPermissionRequest": "Permitir notificações",
+  "notificationPermissionGrantedMessage": "Permissão de notificação concedida.",
+  "notificationPermissionDeniedMessage": "As notificações foram negadas ou bloqueadas pelo navegador."
 }

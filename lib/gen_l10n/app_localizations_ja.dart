@@ -407,4 +407,33 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get goHome => 'ホームへ';
+
+  @override
+  String get notificationSectionTitle => '通知';
+
+  @override
+  String get pushNotificationsTitle => 'プッシュ通知';
+
+  @override
+  String notificationStatusWithValue(String value) {
+    return '状態: $value';
+  }
+
+  @override
+  String get notificationPermissionGranted => '許可';
+
+  @override
+  String get notificationPermissionDenied => '拒否';
+
+  @override
+  String get notificationPermissionUnknown => '未確認';
+
+  @override
+  String get notificationPermissionRequest => '通知を許可';
+
+  @override
+  String get notificationPermissionGrantedMessage => '通知が許可されました。';
+
+  @override
+  String get notificationPermissionDeniedMessage => '通知が拒否されているか、ブラウザでブロックされています。';
 }

@@ -878,6 +878,60 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'홈으로'**
   String get goHome;
+
+  /// No description provided for @notificationSectionTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림'**
+  String get notificationSectionTitle;
+
+  /// No description provided for @pushNotificationsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'푸시 알림'**
+  String get pushNotificationsTitle;
+
+  /// No description provided for @notificationStatusWithValue.
+  ///
+  /// In ko, this message translates to:
+  /// **'상태: {value}'**
+  String notificationStatusWithValue(String value);
+
+  /// No description provided for @notificationPermissionGranted.
+  ///
+  /// In ko, this message translates to:
+  /// **'허용됨'**
+  String get notificationPermissionGranted;
+
+  /// No description provided for @notificationPermissionDenied.
+  ///
+  /// In ko, this message translates to:
+  /// **'거부됨'**
+  String get notificationPermissionDenied;
+
+  /// No description provided for @notificationPermissionUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'확인 필요'**
+  String get notificationPermissionUnknown;
+
+  /// No description provided for @notificationPermissionRequest.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 허용'**
+  String get notificationPermissionRequest;
+
+  /// No description provided for @notificationPermissionGrantedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림 권한이 허용되었습니다.'**
+  String get notificationPermissionGrantedMessage;
+
+  /// No description provided for @notificationPermissionDeniedMessage.
+  ///
+  /// In ko, this message translates to:
+  /// **'알림이 거부되었거나 브라우저에서 차단되었습니다.'**
+  String get notificationPermissionDeniedMessage;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

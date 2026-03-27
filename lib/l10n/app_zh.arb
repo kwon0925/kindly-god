@@ -139,5 +139,15 @@
   "ownerLabel": "所有者",
   "shippingCountry": "寄送国家",
   "heavenDonationNoticeLong": "今生购买的土地使用费\n将用于帮助困难邻里。\n您的善行将永远铭刻于天上。",
-  "goHome": "返回首页"
+  "goHome": "返回首页",
+  "notificationSectionTitle": "通知",
+  "pushNotificationsTitle": "推送通知",
+  "notificationStatusWithValue": "状态：{value}",
+  "@notificationStatusWithValue": { "placeholders": { "value": { "type": "String" } } },
+  "notificationPermissionGranted": "已允许",
+  "notificationPermissionDenied": "已拒绝",
+  "notificationPermissionUnknown": "待确认",
+  "notificationPermissionRequest": "允许通知",
+  "notificationPermissionGrantedMessage": "已允许通知权限。",
+  "notificationPermissionDeniedMessage": "通知被拒绝或已被浏览器拦截。"
 }

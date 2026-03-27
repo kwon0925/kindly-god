@@ -407,4 +407,33 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get goHome => '홈으로';
+
+  @override
+  String get notificationSectionTitle => '알림';
+
+  @override
+  String get pushNotificationsTitle => '푸시 알림';
+
+  @override
+  String notificationStatusWithValue(String value) {
+    return '상태: $value';
+  }
+
+  @override
+  String get notificationPermissionGranted => '허용됨';
+
+  @override
+  String get notificationPermissionDenied => '거부됨';
+
+  @override
+  String get notificationPermissionUnknown => '확인 필요';
+
+  @override
+  String get notificationPermissionRequest => '알림 허용';
+
+  @override
+  String get notificationPermissionGrantedMessage => '알림 권한이 허용되었습니다.';
+
+  @override
+  String get notificationPermissionDeniedMessage => '알림이 거부되었거나 브라우저에서 차단되었습니다.';
 }

@@ -407,4 +407,33 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get goHome => 'العودة للرئيسية';
+
+  @override
+  String get notificationSectionTitle => 'الإشعارات';
+
+  @override
+  String get pushNotificationsTitle => 'إشعارات الدفع';
+
+  @override
+  String notificationStatusWithValue(String value) {
+    return 'الحالة: $value';
+  }
+
+  @override
+  String get notificationPermissionGranted => 'مسموح';
+
+  @override
+  String get notificationPermissionDenied => 'مرفوض';
+
+  @override
+  String get notificationPermissionUnknown => 'غير محدد';
+
+  @override
+  String get notificationPermissionRequest => 'السماح بالإشعارات';
+
+  @override
+  String get notificationPermissionGrantedMessage => 'تم منح إذن الإشعارات.';
+
+  @override
+  String get notificationPermissionDeniedMessage => 'تم رفض الإشعارات أو حظرها في المتصفح.';
 }

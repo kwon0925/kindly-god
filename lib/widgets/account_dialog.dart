@@ -257,10 +257,10 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
     String permissionLabel(AuthorizationStatus? status) {
       if (status == AuthorizationStatus.authorized ||
           status == AuthorizationStatus.provisional) {
-        return '???';
+        return l10n.notificationPermissionGranted;
       }
-      if (status == AuthorizationStatus.denied) return '???';
-      return '???';
+      if (status == AuthorizationStatus.denied) return l10n.notificationPermissionDenied;
+      return l10n.notificationPermissionUnknown;
     }
 
     if (user != null) {
@@ -357,13 +357,13 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                 const LanguagePickerTile(),
 
                 const SizedBox(height: 14),
-                Text('?? ??', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                Text(l10n.notificationSectionTitle, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                 const SizedBox(height: 6),
                 ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                   leading: const Icon(Icons.notifications_active_outlined, size: 20),
-                  title: const Text('?? ??'),
-                  subtitle: Text('??: ${permissionLabel(permission)}'),
+                  title: Text(l10n.pushNotificationsTitle),
+                  subtitle: Text(l10n.notificationStatusWithValue(permissionLabel(permission))),
                   trailing: FilledButton.tonal(
                     onPressed: () async {
                       final granted = await requestNotificationPermission();
@@ -372,13 +372,13 @@ class _AccountDialogState extends ConsumerState<AccountDialog> {
                         SnackBar(
                           content: Text(
                             granted
-                                ? '??? ???????.'
-                                : '???? ???? ??? ??? ???.',
+                                ? l10n.notificationPermissionGrantedMessage
+                                : l10n.notificationPermissionDeniedMessage,
                           ),
                         ),
                       );
                     },
-                    child: const Text('?? ??'),
+                    child: Text(l10n.notificationPermissionRequest),
                   ),
                 ),
 

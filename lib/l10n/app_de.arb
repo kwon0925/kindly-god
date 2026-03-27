@@ -139,5 +139,15 @@
   "ownerLabel": "Eigentümer",
   "shippingCountry": "Versandland",
   "heavenDonationNoticeLong": "Die in diesem Leben gekauften Landgebühren\nwerden für bedürftige Nachbarn verwendet.\nDeine gute Tat wird im Himmel ewig festgehalten.",
-  "goHome": "Zur Startseite"
+  "goHome": "Zur Startseite",
+  "notificationSectionTitle": "Benachrichtigungen",
+  "pushNotificationsTitle": "Push-Benachrichtigungen",
+  "notificationStatusWithValue": "Status: {value}",
+  "@notificationStatusWithValue": { "placeholders": { "value": { "type": "String" } } },
+  "notificationPermissionGranted": "Erlaubt",
+  "notificationPermissionDenied": "Abgelehnt",
+  "notificationPermissionUnknown": "Unbekannt",
+  "notificationPermissionRequest": "Benachrichtigungen erlauben",
+  "notificationPermissionGrantedMessage": "Benachrichtigungen wurden erlaubt.",
+  "notificationPermissionDeniedMessage": "Benachrichtigungen wurden abgelehnt oder vom Browser blockiert."
 }

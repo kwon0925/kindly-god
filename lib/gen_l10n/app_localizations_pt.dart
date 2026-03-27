@@ -407,4 +407,33 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get goHome => 'Ir para início';
+
+  @override
+  String get notificationSectionTitle => 'Notificações';
+
+  @override
+  String get pushNotificationsTitle => 'Notificações push';
+
+  @override
+  String notificationStatusWithValue(String value) {
+    return 'Status: $value';
+  }
+
+  @override
+  String get notificationPermissionGranted => 'Permitido';
+
+  @override
+  String get notificationPermissionDenied => 'Negado';
+
+  @override
+  String get notificationPermissionUnknown => 'Indefinido';
+
+  @override
+  String get notificationPermissionRequest => 'Permitir notificações';
+
+  @override
+  String get notificationPermissionGrantedMessage => 'Permissão de notificação concedida.';
+
+  @override
+  String get notificationPermissionDeniedMessage => 'As notificações foram negadas ou bloqueadas pelo navegador.';
 }

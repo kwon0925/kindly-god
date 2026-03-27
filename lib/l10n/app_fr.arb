@@ -139,5 +139,15 @@
   "ownerLabel": "Propriétaire",
   "shippingCountry": "Pays de livraison",
   "heavenDonationNoticeLong": "Les frais de terrain achetés dans cette vie\nservent à aider les voisins dans le besoin.\nVotre bonne action sera enregistrée éternellement au ciel.",
-  "goHome": "Accueil"
+  "goHome": "Accueil",
+  "notificationSectionTitle": "Notifications",
+  "pushNotificationsTitle": "Notifications push",
+  "notificationStatusWithValue": "État : {value}",
+  "@notificationStatusWithValue": { "placeholders": { "value": { "type": "String" } } },
+  "notificationPermissionGranted": "Autorisé",
+  "notificationPermissionDenied": "Refusé",
+  "notificationPermissionUnknown": "Non déterminé",
+  "notificationPermissionRequest": "Autoriser les notifications",
+  "notificationPermissionDeniedMessage": "Les notifications ont été refusées ou bloquées par le navigateur.",
+  "notificationPermissionGrantedMessage": "Autorisation de notification accordée."
 }

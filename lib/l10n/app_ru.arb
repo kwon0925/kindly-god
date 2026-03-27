@@ -139,5 +139,15 @@
   "ownerLabel": "Владелец",
   "shippingCountry": "Страна доставки",
   "heavenDonationNoticeLong": "Плата за землю, купленную в этой жизни,\nиспользуется для помощи нуждающимся соседям.\nВаше доброе дело навсегда будет записано на небесах.",
-  "goHome": "На главную"
+  "goHome": "На главную",
+  "notificationSectionTitle": "Уведомления",
+  "pushNotificationsTitle": "Push-уведомления",
+  "notificationStatusWithValue": "Статус: {value}",
+  "@notificationStatusWithValue": { "placeholders": { "value": { "type": "String" } } },
+  "notificationPermissionGranted": "Разрешено",
+  "notificationPermissionDenied": "Запрещено",
+  "notificationPermissionUnknown": "Не определено",
+  "notificationPermissionRequest": "Разрешить уведомления",
+  "notificationPermissionGrantedMessage": "Разрешение на уведомления предоставлено.",
+  "notificationPermissionDeniedMessage": "Уведомления запрещены или заблокированы браузером."
 }

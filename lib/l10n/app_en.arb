@@ -139,5 +139,15 @@
   "ownerLabel": "Owner",
   "shippingCountry": "Shipping Country",
   "heavenDonationNoticeLong": "Land usage fees purchased in this life\nare used to help neighbors in need.\nYour good deed will be recorded forever in heaven.",
-  "goHome": "Go Home"
+  "goHome": "Go Home",
+  "notificationSectionTitle": "Notifications",
+  "pushNotificationsTitle": "Push notifications",
+  "notificationStatusWithValue": "Status: {value}",
+  "@notificationStatusWithValue": { "placeholders": { "value": { "type": "String" } } },
+  "notificationPermissionGranted": "Allowed",
+  "notificationPermissionDenied": "Denied",
+  "notificationPermissionUnknown": "Not determined",
+  "notificationPermissionRequest": "Allow notifications",
+  "notificationPermissionGrantedMessage": "Notification permission granted.",
+  "notificationPermissionDeniedMessage": "Notifications were denied or blocked by the browser."
 }

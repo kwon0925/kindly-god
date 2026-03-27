@@ -139,5 +139,15 @@
   "ownerLabel": "المالك",
   "shippingCountry": "دولة الشحن",
   "heavenDonationNoticeLong": "رسوم استخدام الأرض المشتراة في هذه الحياة\nتُستخدم لمساعدة الجيران المحتاجين.\nسيتم تسجيل عملك الصالح إلى الأبد في السماء.",
-  "goHome": "العودة للرئيسية"
+  "goHome": "العودة للرئيسية",
+  "notificationSectionTitle": "الإشعارات",
+  "pushNotificationsTitle": "إشعارات الدفع",
+  "notificationStatusWithValue": "الحالة: {value}",
+  "@notificationStatusWithValue": { "placeholders": { "value": { "type": "String" } } },
+  "notificationPermissionGranted": "مسموح",
+  "notificationPermissionDenied": "مرفوض",
+  "notificationPermissionUnknown": "غير محدد",
+  "notificationPermissionRequest": "السماح بالإشعارات",
+  "notificationPermissionGrantedMessage": "تم منح إذن الإشعارات.",
+  "notificationPermissionDeniedMessage": "تم رفض الإشعارات أو حظرها في المتصفح."
 }

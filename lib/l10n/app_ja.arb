@@ -139,5 +139,15 @@
   "ownerLabel": "所有者",
   "shippingCountry": "配送国",
   "heavenDonationNoticeLong": "この世で購入した土地利用料は\n困っている人々のために使われます。\nあなたの善行は天に永遠に記録されます。",
-  "goHome": "ホームへ"
+  "goHome": "ホームへ",
+  "notificationSectionTitle": "通知",
+  "pushNotificationsTitle": "プッシュ通知",
+  "notificationStatusWithValue": "状態: {value}",
+  "@notificationStatusWithValue": { "placeholders": { "value": { "type": "String" } } },
+  "notificationPermissionGranted": "許可",
+  "notificationPermissionDenied": "拒否",
+  "notificationPermissionUnknown": "未確認",
+  "notificationPermissionRequest": "通知を許可",
+  "notificationPermissionGrantedMessage": "通知が許可されました。",
+  "notificationPermissionDeniedMessage": "通知が拒否されているか、ブラウザでブロックされています。"
 }

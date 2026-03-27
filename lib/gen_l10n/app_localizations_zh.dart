@@ -407,4 +407,33 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get goHome => '返回首页';
+
+  @override
+  String get notificationSectionTitle => '通知';
+
+  @override
+  String get pushNotificationsTitle => '推送通知';
+
+  @override
+  String notificationStatusWithValue(String value) {
+    return '状态：$value';
+  }
+
+  @override
+  String get notificationPermissionGranted => '已允许';
+
+  @override
+  String get notificationPermissionDenied => '已拒绝';
+
+  @override
+  String get notificationPermissionUnknown => '待确认';
+
+  @override
+  String get notificationPermissionRequest => '允许通知';
+
+  @override
+  String get notificationPermissionGrantedMessage => '已允许通知权限。';
+
+  @override
+  String get notificationPermissionDeniedMessage => '通知被拒绝或已被浏览器拦截。';
 }
