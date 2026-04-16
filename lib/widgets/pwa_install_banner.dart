@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/pwa_install_service.dart';
 import '../state/pwa_install_provider.dart';
 
-/// PWA 설치 유도 배너.
+/// PWA 홈 화면 추가 유도 배너.
 ///
-/// 브라우저가 설치 프롬프트를 지원할 때만 자동으로 표시되며,
-/// 설치 완료 또는 닫기 버튼 클릭 시 사라집니다.
+/// 브라우저가 추가 프롬프트를 지원할 때만 자동으로 표시되며,
+/// 추가 완료 또는 닫기 버튼 클릭 시 사라집니다.
 ///
 /// 사용법: 화면 body 최하단 또는 Scaffold.bottomSheet 영역에 배치.
 ///   PwaInstallBanner()
@@ -46,14 +46,14 @@ class PwaInstallBanner extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Kindly-God 앱 설치',
+                    'Kindly-God 홈 화면 추가',
                     style: Theme.of(context)
                         .textTheme
                         .bodyMedium
                         ?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
                   ),
                   Text(
-                    '홈 화면에 추가하면 더 빠르게 이용할 수 있어요',
+                    '바탕화면 아이콘으로 더 빠르게 이용할 수 있어요',
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
@@ -71,17 +71,17 @@ class PwaInstallBanner extends ConsumerWidget {
 
                 final hint = PwaInstallService.installHint;
                 final message = switch (hint) {
-                  'installed' => '이미 설치된 상태입니다.',
-                  'ios' => 'iPhone/iPad는 Safari의 공유 버튼에서\n"홈 화면에 추가"를 선택해 설치해 주세요.',
-                  'android' => '브라우저 메뉴(⋮)에서 "앱 설치" 또는\n"홈 화면에 추가"를 선택해 주세요.',
-                  'inapp' => '인앱 브라우저에서는 설치가 제한됩니다.\nChrome/Safari에서 다시 열어 설치해 주세요.',
-                  _ => '현재 브라우저에서 설치가 제한될 수 있습니다.\nChrome/Safari 최신 버전으로 다시 시도해 주세요.',
+                  'installed' => '이미 홈 화면에 추가된 상태입니다.',
+                  'ios' => 'iPhone/iPad는 Safari의 공유 버튼에서\n"홈 화면에 추가"를 선택해 주세요.',
+                  'android' => '브라우저 메뉴(⋮)에서\n"홈 화면에 추가"를 선택해 주세요.',
+                  'inapp' => '인앱 브라우저에서는 홈 화면 추가가 제한됩니다.\nChrome/Safari에서 다시 열어 주세요.',
+                  _ => '현재 브라우저에서 홈 화면 추가가 제한될 수 있습니다.\nChrome/Safari 최신 버전으로 다시 시도해 주세요.',
                 };
 
                 await showDialog<void>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: const Text('설치 안내'),
+                    title: const Text('홈 화면 추가 안내'),
                     content: Text(message),
                     actions: [
                       TextButton(
@@ -100,7 +100,7 @@ class PwaInstallBanner extends ConsumerWidget {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text('설치', style: TextStyle(fontWeight: FontWeight.w700)),
+              child: const Text('추가', style: TextStyle(fontWeight: FontWeight.w700)),
             ),
             const SizedBox(width: 4),
             // 닫기

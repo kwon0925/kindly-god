@@ -104,18 +104,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Future<void> _showInstallGuideDialog() async {
     final hint = PwaInstallService.installHint;
     final message = switch (hint) {
-      'installed' => '이미 설치된 상태입니다.',
-      'ios' => 'iPhone/iPad는 Safari의 공유 버튼에서\n"홈 화면에 추가"를 선택해 설치해 주세요.',
-      'android' => '브라우저 메뉴(⋮)에서 "앱 설치" 또는\n"홈 화면에 추가"를 선택해 주세요.',
-      'inapp' => '인앱 브라우저에서는 설치가 제한됩니다.\nChrome/Safari에서 다시 열어 설치해 주세요.',
-      _ => '현재 브라우저에서 설치가 제한될 수 있습니다.\nChrome/Safari 최신 버전으로 다시 시도해 주세요.',
+      'installed' => '이미 홈 화면에 추가된 상태입니다.',
+      'ios' => 'iPhone/iPad는 Safari의 공유 버튼에서\n"홈 화면에 추가"를 선택해 주세요.',
+      'android' => '브라우저 메뉴(⋮)에서\n"홈 화면에 추가"를 선택해 주세요.',
+      'inapp' => '인앱 브라우저에서는 홈 화면 추가가 제한됩니다.\nChrome/Safari에서 다시 열어 주세요.',
+      _ => '현재 브라우저에서 홈 화면 추가가 제한될 수 있습니다.\nChrome/Safari 최신 버전으로 다시 시도해 주세요.',
     };
 
     if (!mounted) return;
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('설치 안내'),
+        title: const Text('홈 화면 추가 안내'),
         content: Text(message),
         actions: [
           TextButton(
@@ -134,7 +134,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('앱 설치가 시작되었습니다.')));
+      ).showSnackBar(const SnackBar(content: Text('홈 화면 아이콘 추가가 시작되었습니다.')));
       return;
     }
     await _showInstallGuideDialog();
@@ -181,7 +181,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.add_to_home_screen),
-            tooltip: '앱 설치',
+            tooltip: '홈 화면 추가',
             onPressed: _onInstallPressed,
           ),
           IconButton(
