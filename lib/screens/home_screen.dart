@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kindly_god/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +18,9 @@ import '../widgets/notification_permission_banner.dart';
 import '../widgets/pwa_install_banner.dart';
 import '../widgets/version_badge.dart';
 import '../state/fcm_provider.dart';
+import '../state/pwa_install_provider.dart';
+import '../services/pwa_install_service.dart';
+import '../services/share_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 void _showTranslateDialog(BuildContext context) {
@@ -97,6 +101,60 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
   }
 
+  Future<void> _showInstallGuideDialog() async {
+    final hint = PwaInstallService.installHint;
+    final message = switch (hint) {
+      'installed' => '이미 설치된 상태입니다.',
+      'ios' => 'iPhone/iPad는 Safari의 공유 버튼에서\n"홈 화면에 추가"를 선택해 설치해 주세요.',
+      'android' => '브라우저 메뉴(⋮)에서 "앱 설치" 또는\n"홈 화면에 추가"를 선택해 주세요.',
+      'inapp' => '인앱 브라우저에서는 설치가 제한됩니다.\nChrome/Safari에서 다시 열어 설치해 주세요.',
+      _ => '현재 브라우저에서 설치가 제한될 수 있습니다.\nChrome/Safari 최신 버전으로 다시 시도해 주세요.',
+    };
+
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('설치 안내'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('확인'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _onInstallPressed() async {
+    final install = ref.read(pwaInstallActionProvider);
+    final accepted = await install();
+    if (accepted) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('앱 설치가 시작되었습니다.')));
+      return;
+    }
+    await _showInstallGuideDialog();
+  }
+
+  Future<void> _onSharePressed() async {
+    final ok = await ShareService.shareCurrentPage(
+      title: kAppDisplayName,
+      text: 'Kindly-God를 확인해 보세요.',
+      url: Uri.base.toString(),
+    );
+    if (ok || !mounted) return;
+
+    await Clipboard.setData(ClipboardData(text: Uri.base.toString()));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('공유 기능을 사용할 수 없어 링크를 복사했습니다.')),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -115,6 +173,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.article),
             onPressed: () => context.push(AppRoutes.terms),
+          ),
+          IconButton(
+            icon: const Icon(Icons.ios_share),
+            tooltip: '공유',
+            onPressed: _onSharePressed,
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_to_home_screen),
+            tooltip: '앱 설치',
+            onPressed: _onInstallPressed,
           ),
           IconButton(
             icon: const Icon(Icons.translate),

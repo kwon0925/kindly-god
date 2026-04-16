@@ -84,6 +84,26 @@
       if (isAndroid) return 'android';
       return 'unknown';
     };
+
+    // Flutter Dart에서 호출: 네이티브 공유 시트 실행 가능 여부
+    window.canWebShare = function() {
+      return typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+    };
+
+    // Flutter Dart에서 호출: 현재 URL 공유 시도
+    window.shareCurrentPage = async function(title, text, url) {
+      if (!window.canWebShare()) return false;
+      try {
+        await navigator.share({
+          title: title || document.title || '',
+          text: text || '',
+          url: url || window.location.href
+        });
+        return true;
+      } catch (_) {
+        return false;
+      }
+    };
   </script>
 </head>
 <body>

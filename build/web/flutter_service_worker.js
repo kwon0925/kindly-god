@@ -559,7 +559,7 @@ const RESOURCES = {"assets/AssetManifest.bin": "840b7c957ee8a2f8c263b9a84fb7a1a8
 "assets/assets/images/religion_sikhism.png": "5d843cffa5454f41700f2642a8812418",
 "assets/assets/images/religion_taoism.png": "552f3fae9432e7bb18cb44a5aa62b2d7",
 "assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
-"assets/fonts/MaterialIcons-Regular.otf": "900e36aa16b2ad6cd2c3cb995c4a2328",
+"assets/fonts/MaterialIcons-Regular.otf": "a708456eb0bb28cd1fea0e9a1da86f10",
 "assets/NOTICES": "92d339bff4ce1bcc661a536e9d7efcc1",
 "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "33b7d9392238c04c131b6ce224e13711",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
@@ -578,16 +578,16 @@ const RESOURCES = {"assets/AssetManifest.bin": "840b7c957ee8a2f8c263b9a84fb7a1a8
 "favicon.png": "61f6ee49486daccc4fd3b2076fd8ad66",
 "firebase-messaging-sw.js": "ad65bb677f8005ef6d5d11daacf44756",
 "flutter.js": "76f08d47ff9f5715220992f993002504",
-"flutter_bootstrap.js": "82ed9b35abda9c91e7b486e768f9f649",
+"flutter_bootstrap.js": "78eb1e2dd108606f81218280f65dee1f",
 "icons/Icon-192.png": "da64b222404dd486e24bb010fc69af47",
 "icons/Icon-512.png": "e57f9a7a393390bce151d6ec37bc4a28",
 "icons/Icon-maskable-192.png": "da64b222404dd486e24bb010fc69af47",
 "icons/Icon-maskable-512.png": "e57f9a7a393390bce151d6ec37bc4a28",
-"index.html": "5b99291247fdb9eb4701f8e45d246ced",
-"/": "5b99291247fdb9eb4701f8e45d246ced",
-"main.dart.js": "a2d754e55e9dd19c9a4771c5adfb745e",
+"index.html": "c79a5b27cbfe04941df5a77260f1bcca",
+"/": "c79a5b27cbfe04941df5a77260f1bcca",
+"main.dart.js": "e0c3059c7c89a5554e8d70e0a2e48464",
 "manifest.json": "c083889153dcbc05a86ce12bf75989ae",
-"version.json": "509a58eed76da1b5e4b1761ef56c8044"};
+"version.json": "7a9107ef17fd2ad0cbe4dbf6d18a7fd1"};
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = ["main.dart.js",
